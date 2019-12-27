@@ -75,6 +75,9 @@
     <ClCompile Include="src\Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Tests\TestLighting.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\Basic.shader" />
@@ -481,6 +484,7 @@
       <Filter>Header Files</Filter>
     </None>
     <None Include="res\shaders\Advanced.shader" />
+    <None Include="res\shaders\Color.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Renderer.h">
@@ -1276,6 +1280,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Tests\TestLighting.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

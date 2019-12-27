@@ -17,6 +17,7 @@
 #include "Tests/TestClearColor.h"
 #include "Tests/TestTexture2D.h"
 #include "Tests/TestAdvancedTextures.h"
+#include "Tests/TestLighting.h"
 
 int main(void)
 {
@@ -67,7 +68,8 @@ int main(void)
 
 		testMenu->RegisterTest<test::TestClearColor>("Clear Color");
 		testMenu->RegisterTest<test::TestTexture2D>("2D Texture");
-		testMenu->RegisterTest<test::TestAdvancedTextures>("Advanced Texture");
+		testMenu->RegisterTest<test::TestAdvancedTextures>("Advanced Texture and Camera Control");
+		testMenu->RegisterTest<test::TestLighting>("Lighting");
 
 		//keep track of time
 		float deltaTime = 0.0f;
