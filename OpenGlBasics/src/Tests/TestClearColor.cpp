@@ -24,4 +24,7 @@ namespace test {
 	{
 		ImGui::ColorEdit4("Clear Color", m_ClearColor);
 	}
+	void TestClearColor::ProcessInput(GLFWwindow* window, float deltaTime)
+	{
+	}
 }

@@ -10,7 +10,8 @@
 #include "glm/gtc/type_ptr.hpp"
 
 namespace test {
-	float time = 0.0f;
+	float lastX = 960.0f / 2.0f, lastY = 540.0f / 2.0f;
+	bool firstMouse = true;
 
 	glm::vec3 cubePositions[] = {
 		glm::vec3(0.0f,  0.0f,  0.0f),
@@ -27,7 +28,7 @@ namespace test {
 
 	TestAdvancedTextures::TestAdvancedTextures()
 		: m_Proj(glm::perspective(glm::radians(45.0f), 960.0f / 540.0f, 0.1f, 100.0f)), m_View(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -3.0))), //glm::perspective(glm::radians(45.0f), 960.0f / 540.0f, 0.1f, 500.0f)
-		m_TranslationA(0, 0, 0)
+		m_TranslationA(0, 0, 0), m_FOV(45.0f), m_YawPitch(glm::vec2(0.0f, 0.0f)), m_Speed(2.5f)
 	{
 
 		//Define Triangle
@@ -124,6 +125,16 @@ namespace test {
 		//SetTexture
 		m_Texture = std::make_unique<Texture>("res/textures/Room.png");
 		m_Shader->SetUniform1i("u_Texture", 0);
+
+		//Set Camera
+		m_Camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+		//Set mouse to disabled
+		//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+		//Set callbacks
+		//glfwSetCursorPosCallback(window, MouseCallback);
+		//glfwSetScrollCallback(window, scroll_callback);
 	}
 	TestAdvancedTextures::~TestAdvancedTextures()
 	{
@@ -140,8 +151,15 @@ namespace test {
 
 		m_Texture->Bind();
 
+		//process user input
+
 		{
 			m_Shader->Bind();
+
+			//Move Camera
+			m_Camera->SetYawPitch(m_YawPitch.x - 90.0f, m_YawPitch.y);
+			m_Proj = glm::perspective(glm::radians(m_FOV), 960.0f / 540.0f, 0.1f, 100.0f);
+
 			for (unsigned int i = 0; i < 10; i++)
 			{
 				//create model matrix
@@ -149,8 +167,10 @@ namespace test {
 
 				model = glm::translate(model, m_TranslationA);
 				model = glm::translate(model, cubePositions[i]);
-				model = glm::rotate(model, time * glm::radians(20.0f + i * 5.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-				
+				model = glm::rotate(model, (float) glfwGetTime() * glm::radians(20.0f + i * 5.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+
+				m_View = m_Camera->viewMatrix;
+
 				//construt model view projection
 				glm::mat4 mvp = m_Proj * m_View * model;
 
@@ -159,14 +179,66 @@ namespace test {
 				//draw texture
 				renderer.Draw(*m_VAO, *m_IndexBuffer, *m_Shader);
 			}
-			time += 0.01;
 		}
 	}
+
+	void TestAdvancedTextures::MouseCallback(GLFWwindow* window, double xpos, double ypos)
+	{
+		if (firstMouse) // this bool variable is initially set to true
+		{
+			lastX = xpos;
+			lastY = ypos;
+			firstMouse = false;
+		}
+
+		float xOffset = xpos - lastX;
+		float yOffset = lastY - ypos;
+		lastX = xpos;
+		lastY = ypos;
+
+		float sensitivity = 0.05f;
+		xOffset *= sensitivity;
+		yOffset *= sensitivity;
+
+		m_Camera->UpdateYawPitch(xOffset, yOffset);
+	}
+
+	void TestAdvancedTextures::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+	{
+		if (m_FOV >= 1.0f && m_FOV <= 45.0f)
+			m_FOV -= yoffset;
+		if (m_FOV <= 1.0f)
+			m_FOV = 1.0f;
+		if (m_FOV >= 45.0f)
+			m_FOV = 45.0f;
+
+		m_Proj = glm::perspective(glm::radians(m_FOV), 960.0f / 540.0f, 0.1f, 100.0f);
+	}
+
+	void TestAdvancedTextures::ProcessInput(GLFWwindow* window, float deltaTime)
+	{
+		float cameraSpeed = m_Speed * deltaTime; // adjust accordingly
+		if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+			m_Camera->Forward(cameraSpeed);
+		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+			m_Camera->BackWard(cameraSpeed);
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+			m_Camera->Up(cameraSpeed);
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+			m_Camera->Down(cameraSpeed);
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+			m_Camera->Left(cameraSpeed);
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+			m_Camera->Right(cameraSpeed);
+	}
+
 	void TestAdvancedTextures::OnImGuiRender()
 	{
 		//translates imageA
-		ImGui::SliderFloat("Translation A x", &m_TranslationA.x, -1.0f, 1.0f);
-		ImGui::SliderFloat("Translation A y", &m_TranslationA.y, -1.0f, 1.0f);
+		ImGui::SliderFloat2("Translate Models", &m_TranslationA.x, -2.0f, 2.0f);
+		ImGui::SliderFloat2("Yaw Pitch", &m_YawPitch.x, -89.0f, 89.0f);
+		ImGui::SliderFloat("Zoom", &m_FOV, 1.0f, 89.0f);
+		ImGui::SliderFloat("Spped", &m_Speed, 0.5f, 5.0f);
 		//displays framerate
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	}

@@ -12,6 +12,7 @@ namespace test {
 		void OnUpdate(float deltaTime) override;
 		void OnRender() override;
 		void OnImGuiRender() override;
+		void ProcessInput(GLFWwindow* window, float deltaTime) override;
 	private:
 		float m_ClearColor[4];
 	};

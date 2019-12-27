@@ -44,11 +44,6 @@ namespace test {
 		//create index buffer
 		m_IndexBuffer = std::make_unique<IndexBuffer>(indicies, 6);
 
-		////create projection matrix
-		//m_Proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
-		////create view matrix
-		//m_View = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
-
 		//create Vertex and Fragment source
 		m_Shader = std::make_unique<Shader>("res/shaders/Basic.shader");
 		m_Shader->Bind();
@@ -56,12 +51,6 @@ namespace test {
 		//SetTexture
 		m_Texture = std::make_unique<Texture>("res/textures/Room.png");
 		m_Shader->SetUniform1i("u_Texture", 0);
-
-		////UnBind just to check functionality
-		//m_VAO->UnBind();
-		//m_Shader->UnBind();
-		//vb.UnBind();
-		//m_IndexBuffer->UnBind();
 	}
 	TestTexture2D::~TestTexture2D()
 	{
@@ -112,5 +101,8 @@ namespace test {
 		ImGui::SliderFloat3("Translation B", &m_TranslationB.x, 0.0f, 960.0f);
 		//displays framerate
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+	}
+	void TestTexture2D::ProcessInput(GLFWwindow* window, float deltaTime)
+	{
 	}
 }

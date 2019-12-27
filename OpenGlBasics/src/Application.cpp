@@ -1,22 +1,14 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include "Window.h"
+
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <sstream>
 
 #include "Renderer.h"
-
-//#include "VertexBuffer.h"
-//#include "IndexBuffer.h"
-//#include "VertexArray.h"
-//#include "Shader.h"
-//#include "VertexBufferLayout.h"
-//#include "Texture.h"
-//
-//#include "glm/glm.hpp"
-//#include "glm/gtc/matrix_transform.hpp"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -28,7 +20,7 @@
 
 int main(void)
 {
-	GLFWwindow* window;
+	//GLFWwindow* window;
 
 	/* Initialize the library */
 	if (!glfwInit())
@@ -39,7 +31,7 @@ int main(void)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	/* Create a windowed mode window and its OpenGL context */
-	window = glfwCreateWindow(960, 540, "Hello World", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(960, 540, "Hello World", NULL, NULL);
 	if (!window)
 	{
 		glfwTerminate();
@@ -77,9 +69,24 @@ int main(void)
 		testMenu->RegisterTest<test::TestTexture2D>("2D Texture");
 		testMenu->RegisterTest<test::TestAdvancedTextures>("Advanced Texture");
 
+		//keep track of time
+		float deltaTime = 0.0f;
+		float lastFrame = 0.0f;
+
+		////Set Mouse to be invisible and within the window
+		//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
+		//glfwSetCursorPosCallback(window, currentTest->MouseCallback);
+		//glfwSetScrollCallback(window, currentTest->ScrollCallback);
+
 		/* Loop until the user closes the window */
 		while (!glfwWindowShouldClose(window))
 		{
+			//update time
+			float currentFrame = (float) glfwGetTime();
+			deltaTime = currentFrame - lastFrame;
+			lastFrame = currentFrame;
+
 			GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
 
 			// Render here 
@@ -90,6 +97,7 @@ int main(void)
 			ImGui_ImplGlfw_NewFrame();
 			ImGui::NewFrame();
 			if (currentTest) {
+				currentTest->ProcessInput(window, deltaTime);
 				currentTest->OnUpdate(0.0f);
 				currentTest->OnRender();
 				ImGui::Begin("Test");
