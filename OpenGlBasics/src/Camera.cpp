@@ -77,3 +77,8 @@ void Camera::UpdateViewMatrix()
 {
 	viewMatrix = glm::lookAt(m_Pos, m_Pos + m_Front, m_Up);
 }
+
+glm::vec3 Camera::CameraPosition()
+{
+	return m_Pos;
+}

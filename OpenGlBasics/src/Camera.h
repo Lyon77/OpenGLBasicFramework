@@ -21,6 +21,8 @@ public:
 
 	void UpdateViewMatrix();
 
+	glm::vec3 CameraPosition();
+
 	glm::mat4 viewMatrix;
 private:
 	glm::vec3 m_Pos;
