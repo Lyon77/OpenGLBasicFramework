@@ -10,6 +10,7 @@
 #include "glm/gtc/type_ptr.hpp"
 
 namespace test {
+
 	TestLighting::TestLighting()
 		: m_Proj(glm::perspective(glm::radians(45.0f), 960.0f / 540.0f, 0.1f, 100.0f)), m_View(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -3.0))), //glm::perspective(glm::radians(45.0f), 960.0f / 540.0f, 0.1f, 500.0f)
 		m_CubePos(0, 0, 0), m_FOV(45.0f), m_YawPitch(glm::vec2(0.0f, 0.0f)), m_Speed(2.5f),
@@ -150,12 +151,17 @@ namespace test {
 
 			m_Shader->SetUniform3f("u_ObjectColor", m_CubeColor.x, m_CubeColor.y, m_CubeColor.z);
 			
-			m_Shader->SetUniform3f("u_LightPos", m_LampPos.x, m_LampPos.y, m_LampPos.z);
 			m_Shader->SetUniform3f("u_ViewPos", m_Camera->CameraPosition().x, m_Camera->CameraPosition().y, m_Camera->CameraPosition().z);
 
-			m_Shader->SetUniform3f("u_LightColor.ambient", m_LampAmbient.x, m_LampAmbient.y, m_LampAmbient.z);
-			m_Shader->SetUniform3f("u_LightColor.diffuse", m_LampDiffuse.x, m_LampDiffuse.y, m_LampDiffuse.z);
-			m_Shader->SetUniform3f("u_LightColor.specular", m_LampSpecular.x, m_LampSpecular.y, m_LampSpecular.z);
+			m_Shader->SetUniform1i("u_NumPointLights", 1);
+
+			m_Shader->SetUniform3f("u_PointLight[0].position", m_LampPos.x, m_LampPos.y, m_LampPos.z);
+			m_Shader->SetUniform3f("u_PointLight[0].ambient", m_LampAmbient.x, m_LampAmbient.y, m_LampAmbient.z);
+			m_Shader->SetUniform3f("u_PointLight[0].diffuse", m_LampDiffuse.x, m_LampDiffuse.y, m_LampDiffuse.z);
+			m_Shader->SetUniform3f("u_PointLight[0].specular", m_LampSpecular.x, m_LampSpecular.y, m_LampSpecular.z);
+			m_Shader->SetUniform1f("u_PointLight[0].constant", 1.0f);
+			m_Shader->SetUniform1f("u_PointLight[0].linear", 0.09f);
+			m_Shader->SetUniform1f("u_PointLight[0].quadratic", 0.032f);
 
 			m_Shader->SetUniform1f("u_Material.shininess", m_SpecularPower);
 
@@ -163,22 +169,25 @@ namespace test {
 			m_Camera->SetYawPitch(m_YawPitch.x - 90.0f, m_YawPitch.y);
 			m_Proj = glm::perspective(glm::radians(m_FOV), 960.0f / 540.0f, 0.1f, 100.0f);
 
-			//create model matrix
-			glm::mat4 model = glm::mat4(1.0f);
+			for (unsigned int i = 0; i < 10; i++)
+			{
+				//create model matrix
+				glm::mat4 model = glm::mat4(1.0f);
 
-			model = glm::translate(model, m_CubePos);
-			model = glm::rotate(model, (float)glfwGetTime() * glm::radians(20.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+				model = glm::translate(model, m_CubePos + cubePositions[i]);
+				model = glm::rotate(model, (float)glfwGetTime() * glm::radians(20.0f + i * 5.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 
-			m_View = m_Camera->viewMatrix;
+				m_View = m_Camera->viewMatrix;
 
-			//construt model view projection
-			glm::mat4 mvp = m_Proj * m_View * model;
+				//construt model view projection
+				glm::mat4 mvp = m_Proj * m_View * model;
 
-			m_Shader->SetUniformMat4f("u_MVP", mvp);
-			m_Shader->SetUniformMat4f("u_Model", model);
+				m_Shader->SetUniformMat4f("u_MVP", mvp);
+				m_Shader->SetUniformMat4f("u_Model", model);
 
-			//draw texture
-			renderer.Draw(*m_VAO, *m_IndexBuffer, *m_Shader);
+				//draw texture
+				renderer.Draw(*m_VAO, *m_IndexBuffer, *m_Shader);
+			}
 
 			m_TextureDiffuse->UnBind();
 			m_Shader->UnBind();
@@ -210,6 +219,7 @@ namespace test {
 
 			m_LampShader->UnBind();
 		}
+
 	}
 
 	void TestLighting::MouseCallback(GLFWwindow* window, double xpos, double ypos)
@@ -264,16 +274,25 @@ namespace test {
 
 	void TestLighting::OnImGuiRender()
 	{
-		ImGui::SliderFloat3("Translate Cube", &m_CubePos.x, -2.0f, 2.0f);
-		ImGui::SliderFloat3("Translate Lamp", &m_LampPos.x, -2.0f, 2.0f);
-		ImGui::ColorEdit3("Cube Color", &m_CubeColor.x);
-		ImGui::ColorEdit3("Light Ambient", &m_LampAmbient.x);
-		ImGui::ColorEdit3("Light Diffuse", &m_LampDiffuse.x);
-		ImGui::ColorEdit3("Light Specular", &m_LampSpecular.x);
-		ImGui::SliderFloat2("Yaw Pitch", &m_YawPitch.x, -89.0f, 89.0f);
-		ImGui::SliderFloat("FOV", &m_FOV, 1.0f, 89.0f);
-		ImGui::SliderFloat("Speed", &m_Speed, 0.5f, 5.0f);
-		ImGui::SliderFloat("Specular Power", &m_SpecularPower, 0.0f, 8.0f);
+		if (ImGui::CollapsingHeader("Cube Options")) {
+			ImGui::SliderFloat3("Translate Cube", &m_CubePos.x, -5.0f, 5.0f);
+			ImGui::ColorEdit3("Cube Color", &m_CubeColor.x);
+			ImGui::SliderFloat("Specular Power", &m_SpecularPower, 0.0f, 8.0f);
+		}
+
+		if (ImGui::CollapsingHeader("Lamp Options")) {
+			ImGui::SliderFloat3("Translate Lamp", &m_LampPos.x, -5.0f, 5.0f);
+			ImGui::ColorEdit3("Light Ambient", &m_LampAmbient.x);
+			ImGui::ColorEdit3("Light Diffuse", &m_LampDiffuse.x);
+			ImGui::ColorEdit3("Light Specular", &m_LampSpecular.x);
+		}
+
+		if (ImGui::CollapsingHeader("Camera Options")) {
+			ImGui::SliderFloat2("Yaw Pitch", &m_YawPitch.x, -89.0f, 89.0f);
+			ImGui::SliderFloat("FOV", &m_FOV, 1.0f, 89.0f);
+			ImGui::SliderFloat("Speed", &m_Speed, 0.5f, 5.0f);
+		}
+		
 		//displays framerate
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	}
