@@ -61,7 +61,7 @@ namespace test {
 	void TestTexture2D::OnRender()
 	{
 		GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
-		GLCall(glClear(GL_COLOR_BUFFER_BIT));
+		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
 		Renderer renderer;
 
@@ -78,6 +78,7 @@ namespace test {
 
 			//draw first texture
 			renderer.Draw(*m_VAO, *m_IndexBuffer, *m_Shader);
+			m_Shader->UnBind();
 		}
 
 		{
@@ -91,10 +92,15 @@ namespace test {
 
 			//draw second texture
 			renderer.Draw(*m_VAO, *m_IndexBuffer, *m_Shader);
+			m_Shader->UnBind();
 		}
+
+		m_Texture->UnBind();
 	}
 	void TestTexture2D::OnImGuiRender()
 	{
+		ImGui::Text("Welcome to the Texture2D Test Enviroment. You can move the images around in this enviroment.");
+
 		//translates imageA
 		ImGui::SliderFloat3("Translation A", &m_TranslationA.x, 0.0f, 960.0f);
 		//translates imageB

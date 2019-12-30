@@ -162,7 +162,11 @@ namespace test {
 				//draw texture
 				renderer.Draw(*m_VAO, *m_IndexBuffer, *m_Shader);
 			}
+
+			m_Shader->UnBind();
 		}
+
+		m_Texture->UnBind();
 	}
 
 	void TestAdvancedTextures::MouseCallback(GLFWwindow* window, double xpos, double ypos)
@@ -174,16 +178,16 @@ namespace test {
 			firstMouse = false;
 		}
 
-		float xOffset = xpos - lastX;
-		float yOffset = lastY - ypos;
+		double xOffset = xpos - lastX;
+		double yOffset = lastY - ypos;
 		lastX = xpos;
 		lastY = ypos;
 
-		float sensitivity = 0.05f;
+		double sensitivity = 0.05f;
 		xOffset *= sensitivity;
 		yOffset *= sensitivity;
 
-		m_Camera->UpdateYawPitch(xOffset, yOffset);
+		m_Camera->UpdateYawPitch((float) xOffset, (float) yOffset);
 	}
 
 	void TestAdvancedTextures::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
@@ -217,11 +221,13 @@ namespace test {
 
 	void TestAdvancedTextures::OnImGuiRender()
 	{
+		ImGui::Text("Welcome to the Advanced Test Enviroment. You can explore the enviroment using WASD to move and QE to zoom in and out.");
+
 		//translates imageA
 		ImGui::SliderFloat2("Translate Models", &m_TranslationA.x, -2.0f, 2.0f);
 		ImGui::SliderFloat2("Yaw Pitch", &m_YawPitch.x, -89.0f, 89.0f);
-		ImGui::SliderFloat("Zoom", &m_FOV, 1.0f, 89.0f);
-		ImGui::SliderFloat("Spped", &m_Speed, 0.5f, 5.0f);
+		ImGui::SliderFloat("FOV", &m_FOV, 1.0f, 89.0f);
+		ImGui::SliderFloat("Speed", &m_Speed, 0.5f, 5.0f);
 		//displays framerate
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	}

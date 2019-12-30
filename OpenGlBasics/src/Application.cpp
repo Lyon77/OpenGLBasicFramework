@@ -18,6 +18,7 @@
 #include "Tests/TestTexture2D.h"
 #include "Tests/TestAdvancedTextures.h"
 #include "Tests/TestLighting.h"
+#include "Tests/TestDepthStencilBlending.h"
 
 int main(void)
 {
@@ -70,6 +71,7 @@ int main(void)
 		testMenu->RegisterTest<test::TestTexture2D>("2D Texture");
 		testMenu->RegisterTest<test::TestAdvancedTextures>("Advanced Texture and Camera Control");
 		testMenu->RegisterTest<test::TestLighting>("Lighting");
+		testMenu->RegisterTest<test::TestDepthStencilBlending>("Depth Testing, Stencil Testing, and Blending");
 
 		//keep track of time
 		float deltaTime = 0.0f;

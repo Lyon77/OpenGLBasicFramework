@@ -10,10 +10,10 @@
 
 namespace test {
 
-	class TestAdvancedTextures : public Test {
+	class TestDepthStencilBlending : public Test {
 	public:
-		TestAdvancedTextures();
-		~TestAdvancedTextures();
+		TestDepthStencilBlending();
+		~TestDepthStencilBlending();
 
 		void OnUpdate(float deltaTime) override;
 		void OnRender() override;
@@ -26,14 +26,27 @@ namespace test {
 		std::unique_ptr <VertexBuffer> m_VertexBuffer;
 		std::unique_ptr <IndexBuffer> m_IndexBuffer;
 		std::unique_ptr <Shader> m_Shader;
-		std::unique_ptr <Texture> m_Texture;
+		std::unique_ptr <Shader> m_LampShader;
+
+		std::unique_ptr <Texture> m_TextureDiffuse;
+		std::unique_ptr <Texture> m_TextureSpecular;
 
 		glm::mat4 m_Proj, m_View;
+
+		//Camera Information
+		std::unique_ptr <Camera> m_Camera;
+		float m_Speed;
 		float m_FOV;
 		glm::vec2 m_YawPitch;
 
-		//the locations of the inital translations for the images
-		glm::vec3 m_TranslationA;
+		//Mouse Calculations
+		double lastX = 960.0f / 2.0f, lastY = 540.0f / 2.0f;
+		bool firstMouse = true;
+
+		//location of the lamp light
+		glm::vec3 m_LampPos = glm::vec3(1.2f, 1.0f, 2.0f);
+		glm::vec3 m_CubePos;
+
 		glm::vec3 cubePositions[10] = {
 		   glm::vec3(0.0f,  0.0f,  0.0f),
 		   glm::vec3(2.0f,  5.0f, -15.0f),
@@ -47,11 +60,13 @@ namespace test {
 		   glm::vec3(-1.3f,  1.0f, -1.5f)
 		};
 
-		std::unique_ptr <Camera> m_Camera;
+		//Lighting Conditions
+		glm::vec3 m_CubeColor;
 
-		float m_Speed;
+		glm::vec3 m_LampAmbient;
+		glm::vec3 m_LampDiffuse;
+		glm::vec3 m_LampSpecular;
 
-		double lastX = 960.0f / 2.0f, lastY = 540.0f / 2.0f;
-		bool firstMouse = true;
+		float m_SpecularPower;
 	};
 }

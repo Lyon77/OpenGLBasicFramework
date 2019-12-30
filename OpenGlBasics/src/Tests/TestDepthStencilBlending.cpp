@@ -1,4 +1,4 @@
-#include "TestLighting.h"
+#include "TestDepthStencilBlending.h"
 
 #include <iostream>
 
@@ -11,7 +11,7 @@
 
 namespace test {
 
-	TestLighting::TestLighting()
+	TestDepthStencilBlending::TestDepthStencilBlending()
 		: m_Proj(glm::perspective(glm::radians(45.0f), 960.0f / 540.0f, 0.1f, 100.0f)), m_View(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -3.0))), //glm::perspective(glm::radians(45.0f), 960.0f / 540.0f, 0.1f, 500.0f)
 		m_CubePos(0, 0, 0), m_FOV(45.0f), m_YawPitch(glm::vec2(0.0f, 0.0f)), m_Speed(2.5f),
 		m_CubeColor(glm::vec3(1.0f, 1.0f, 1.0f)), m_LampAmbient(glm::vec3(0.2f, 0.2f, 0.2f)), m_LampDiffuse(glm::vec3(0.5f, 0.5f, 0.5f)), m_LampSpecular(glm::vec3(1.0f, 1.0f, 1.0f)),
@@ -47,17 +47,17 @@ namespace test {
 			 0.5f,  0.5f, -0.5f,   1.0f,  0.0f,  0.0f,	  1.0f, 1.0f,
 			 0.5f,  0.5f,  0.5f,   1.0f,  0.0f,  0.0f,	  0.0f, 1.0f,
 
-			//Top
-			 0.5f,  0.5f,  0.5f,   0.0f,  1.0f,  0.0f,	  0.0f, 0.0f,
-			 0.5f,  0.5f, -0.5f,   0.0f,  1.0f,  0.0f,	  1.0f, 0.0f,
-			-0.5f,  0.5f, -0.5f,   0.0f,  1.0f,  0.0f,	  1.0f, 1.0f,
-			-0.5f,  0.5f,  0.5f,   0.0f,  1.0f,  0.0f,	  0.0f, 1.0f,
+			 //Top
+			  0.5f,  0.5f,  0.5f,   0.0f,  1.0f,  0.0f,	  0.0f, 0.0f,
+			  0.5f,  0.5f, -0.5f,   0.0f,  1.0f,  0.0f,	  1.0f, 0.0f,
+			 -0.5f,  0.5f, -0.5f,   0.0f,  1.0f,  0.0f,	  1.0f, 1.0f,
+			 -0.5f,  0.5f,  0.5f,   0.0f,  1.0f,  0.0f,	  0.0f, 1.0f,
 
-			//Bottom			
-			 0.5f, -0.5f,  0.5f,   0.0f, -1.0f,  0.0f,	  0.0f, 0.0f,
-			 0.5f, -0.5f, -0.5f,   0.0f, -1.0f,  0.0f,	  1.0f, 0.0f,
-			-0.5f, -0.5f, -0.5f,   0.0f, -1.0f,  0.0f,	  1.0f, 1.0f,
-			-0.5f, -0.5f,  0.5f,   0.0f, -1.0f,  0.0f,	  0.0f, 1.0f,
+			 //Bottom			
+			  0.5f, -0.5f,  0.5f,   0.0f, -1.0f,  0.0f,	  0.0f, 0.0f,
+			  0.5f, -0.5f, -0.5f,   0.0f, -1.0f,  0.0f,	  1.0f, 0.0f,
+			 -0.5f, -0.5f, -0.5f,   0.0f, -1.0f,  0.0f,	  1.0f, 1.0f,
+			 -0.5f, -0.5f,  0.5f,   0.0f, -1.0f,  0.0f,	  0.0f, 1.0f,
 		};
 
 		unsigned int indicies[] = {
@@ -123,15 +123,15 @@ namespace test {
 		m_Camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 
-	TestLighting::~TestLighting()
+	TestDepthStencilBlending::~TestDepthStencilBlending()
 	{
 	}
 
-	void TestLighting::OnUpdate(float deltaTime)
+	void TestDepthStencilBlending::OnUpdate(float deltaTime)
 	{
 	}
 
-	void TestLighting::OnRender()
+	void TestDepthStencilBlending::OnRender()
 	{
 		GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
@@ -150,7 +150,7 @@ namespace test {
 			m_TextureSpecular->Bind(1);
 
 			m_Shader->SetUniform3f("u_ObjectColor", m_CubeColor.x, m_CubeColor.y, m_CubeColor.z);
-			
+
 			m_Shader->SetUniform3f("u_ViewPos", m_Camera->CameraPosition().x, m_Camera->CameraPosition().y, m_Camera->CameraPosition().z);
 
 			m_Shader->SetUniform1i("u_NumPointLights", 1);
@@ -222,7 +222,7 @@ namespace test {
 
 	}
 
-	void TestLighting::MouseCallback(GLFWwindow* window, double xpos, double ypos)
+	void TestDepthStencilBlending::MouseCallback(GLFWwindow* window, double xpos, double ypos)
 	{
 		if (firstMouse) // this bool variable is initially set to true
 		{
@@ -231,19 +231,19 @@ namespace test {
 			firstMouse = false;
 		}
 
-		float xOffset = xpos - lastX;
-		float yOffset = lastY - ypos;
+		double xOffset = xpos - lastX;
+		double yOffset = lastY - ypos;
 		lastX = xpos;
 		lastY = ypos;
 
-		float sensitivity = 0.05f;
+		double sensitivity = 0.05f;
 		xOffset *= sensitivity;
 		yOffset *= sensitivity;
 
-		m_Camera->UpdateYawPitch(xOffset, yOffset);
+		m_Camera->UpdateYawPitch((float) xOffset,(float) yOffset);
 	}
 
-	void TestLighting::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+	void TestDepthStencilBlending::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 	{
 		if (m_FOV >= 1.0f && m_FOV <= 45.0f)
 			m_FOV -= yoffset;
@@ -255,7 +255,7 @@ namespace test {
 		m_Proj = glm::perspective(glm::radians(m_FOV), 960.0f / 540.0f, 0.1f, 100.0f);
 	}
 
-	void TestLighting::ProcessInput(GLFWwindow* window, float deltaTime)
+	void TestDepthStencilBlending::ProcessInput(GLFWwindow* window, float deltaTime)
 	{
 		float cameraSpeed = m_Speed * deltaTime; // adjust accordingly
 		if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
@@ -272,9 +272,10 @@ namespace test {
 			m_Camera->Right(cameraSpeed);
 	}
 
-	void TestLighting::OnImGuiRender()
+	void TestDepthStencilBlending::OnImGuiRender()
 	{
-		ImGui::Text("Welcome to the Lighting Test Enviroment. Use WASD to move around and QE to zoom in and out. There are more setting options below.");
+		ImGui::Text("Welcome to the Depth, Stencil, and Blending Test Enviroment.");
+
 		if (ImGui::CollapsingHeader("Cube Options")) {
 			ImGui::SliderFloat3("Translate Cube", &m_CubePos.x, -5.0f, 5.0f);
 			ImGui::ColorEdit3("Cube Color", &m_CubeColor.x);
@@ -293,7 +294,7 @@ namespace test {
 			ImGui::SliderFloat("FOV", &m_FOV, 1.0f, 89.0f);
 			ImGui::SliderFloat("Speed", &m_Speed, 0.5f, 5.0f);
 		}
-		
+
 		//displays framerate
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	}

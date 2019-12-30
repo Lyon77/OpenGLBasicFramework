@@ -22,6 +22,7 @@ namespace test {
 	}
 	void TestClearColor::OnImGuiRender()
 	{
+		ImGui::Text("Welcome to the Color Test Enviroment. Use the options below to change the color.");
 		ImGui::ColorEdit4("Clear Color", m_ClearColor);
 	}
 	void TestClearColor::ProcessInput(GLFWwindow* window, float deltaTime)
