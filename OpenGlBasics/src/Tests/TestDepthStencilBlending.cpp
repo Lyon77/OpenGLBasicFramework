@@ -61,14 +61,14 @@ namespace test {
 		};
 
 		unsigned int indicies[] = {
-			0, 1, 2,
-			2, 3, 0,
+			0, 2, 1,
+			2, 0, 3,
 
 			4, 5, 6,
 			6, 7, 4,
 
-			8, 9, 10,
-			10, 11, 8,
+			8, 10, 9,
+			10, 8, 11,
 
 			12, 13, 14,
 			14, 15, 12,
@@ -76,11 +76,12 @@ namespace test {
 			16, 17, 18,
 			18, 19, 16,
 
-			20, 21, 22,
-			22, 23, 20
+			20, 22, 21,
+			22, 20, 23
 		};
 
-
+		//Face Culling
+		GLCall(glEnable(GL_CULL_FACE));
 
 		//Depth Testing
 		GLCall(glEnable(GL_DEPTH_TEST));
@@ -150,92 +151,84 @@ namespace test {
 
 		//process user input
 
-		// Load the box
+		//Move Camera
+		m_Camera->SetYawPitch(m_YawPitch.x - 90.0f, m_YawPitch.y);
+		m_Proj = glm::perspective(glm::radians(m_FOV), 960.0f / 540.0f, 0.1f, 100.0f);
+
 		if (!(m_DepthCheckbox || m_StencilCheckbox)) {
+			// Load the box
+			m_Shader->Bind();
+
+			m_TextureDiffuse->Bind();
+			m_TextureSpecular->Bind(1);
+
+			m_Shader->SetUniform3f("u_ObjectColor", m_CubeColor.x, m_CubeColor.y, m_CubeColor.z);
+
+			m_Shader->SetUniform3f("u_ViewPos", m_Camera->CameraPosition().x, m_Camera->CameraPosition().y, m_Camera->CameraPosition().z);
+
+			m_Shader->SetUniform1i("u_NumPointLights", 1);
+
+			m_Shader->SetUniform3f("u_PointLight[0].position", m_LampPos.x, m_LampPos.y, m_LampPos.z);
+			m_Shader->SetUniform3f("u_PointLight[0].ambient", m_LampAmbient.x, m_LampAmbient.y, m_LampAmbient.z);
+			m_Shader->SetUniform3f("u_PointLight[0].diffuse", m_LampDiffuse.x, m_LampDiffuse.y, m_LampDiffuse.z);
+			m_Shader->SetUniform3f("u_PointLight[0].specular", m_LampSpecular.x, m_LampSpecular.y, m_LampSpecular.z);
+			m_Shader->SetUniform1f("u_PointLight[0].constant", 1.0f);
+			m_Shader->SetUniform1f("u_PointLight[0].linear", 0.09f);
+			m_Shader->SetUniform1f("u_PointLight[0].quadratic", 0.032f);
+
+			m_Shader->SetUniform1f("u_Material.shininess", m_SpecularPower);
+
+			for (unsigned int i = 0; i < 10; i++)
 			{
-				m_Shader->Bind();
-
-				m_TextureDiffuse->Bind();
-				m_TextureSpecular->Bind(1);
-
-				m_Shader->SetUniform3f("u_ObjectColor", m_CubeColor.x, m_CubeColor.y, m_CubeColor.z);
-
-				m_Shader->SetUniform3f("u_ViewPos", m_Camera->CameraPosition().x, m_Camera->CameraPosition().y, m_Camera->CameraPosition().z);
-
-				m_Shader->SetUniform1i("u_NumPointLights", 1);
-
-				m_Shader->SetUniform3f("u_PointLight[0].position", m_LampPos.x, m_LampPos.y, m_LampPos.z);
-				m_Shader->SetUniform3f("u_PointLight[0].ambient", m_LampAmbient.x, m_LampAmbient.y, m_LampAmbient.z);
-				m_Shader->SetUniform3f("u_PointLight[0].diffuse", m_LampDiffuse.x, m_LampDiffuse.y, m_LampDiffuse.z);
-				m_Shader->SetUniform3f("u_PointLight[0].specular", m_LampSpecular.x, m_LampSpecular.y, m_LampSpecular.z);
-				m_Shader->SetUniform1f("u_PointLight[0].constant", 1.0f);
-				m_Shader->SetUniform1f("u_PointLight[0].linear", 0.09f);
-				m_Shader->SetUniform1f("u_PointLight[0].quadratic", 0.032f);
-
-				m_Shader->SetUniform1f("u_Material.shininess", m_SpecularPower);
-
-				//Move Camera
-				m_Camera->SetYawPitch(m_YawPitch.x - 90.0f, m_YawPitch.y);
-				m_Proj = glm::perspective(glm::radians(m_FOV), 960.0f / 540.0f, 0.1f, 100.0f);
-
-				for (unsigned int i = 0; i < 10; i++)
-				{
-					//create model matrix
-					glm::mat4 model = glm::mat4(1.0f);
-
-					model = glm::translate(model, m_CubePos + cubePositions[i]);
-					model = glm::rotate(model, (float)glfwGetTime() * glm::radians(20.0f + i * 5.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-
-					m_View = m_Camera->viewMatrix;
-
-					//construt model view projection
-					glm::mat4 mvp = m_Proj * m_View * model;
-
-					m_Shader->SetUniformMat4f("u_MVP", mvp);
-					m_Shader->SetUniformMat4f("u_Model", model);
-
-					//draw texture
-					renderer.Draw(*m_VAO, *m_IndexBuffer, *m_Shader);
-				}
-
-				m_TextureDiffuse->UnBind();
-				m_Shader->UnBind();
-			}
-
-			// Load the Lamp
-			{
-				m_LampShader->Bind();
-
-				//Move Camera
-				m_Camera->SetYawPitch(m_YawPitch.x - 90.0f, m_YawPitch.y);
-				m_Proj = glm::perspective(glm::radians(m_FOV), 960.0f / 540.0f, 0.1f, 100.0f);
-
 				//create model matrix
 				glm::mat4 model = glm::mat4(1.0f);
 
-				model = glm::translate(model, m_CubePos + m_LampPos);
-				model = glm::scale(model, glm::vec3(0.2f));
+				model = glm::translate(model, m_CubePos + cubePositions[i]);
+				model = glm::rotate(model, (float)glfwGetTime() * glm::radians(20.0f + i * 5.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 
 				m_View = m_Camera->viewMatrix;
 
 				//construt model view projection
 				glm::mat4 mvp = m_Proj * m_View * model;
 
-				m_LampShader->SetUniformMat4f("u_MVP", mvp);
+				m_Shader->SetUniformMat4f("u_MVP", mvp);
+				m_Shader->SetUniformMat4f("u_Model", model);
 
 				//draw texture
-				renderer.Draw(*m_VAO, *m_IndexBuffer, *m_LampShader);
-
-				m_LampShader->UnBind();
+				renderer.Draw(*m_VAO, *m_IndexBuffer, *m_Shader);
 			}
-		}
-		else if (m_DepthCheckbox)
-		{
-			m_DepthShader->Bind();
+
+			m_TextureDiffuse->UnBind();
+			m_Shader->UnBind();
+
+			// Load the Lamp
+			m_LampShader->Bind();
 
 			//Move Camera
 			m_Camera->SetYawPitch(m_YawPitch.x - 90.0f, m_YawPitch.y);
 			m_Proj = glm::perspective(glm::radians(m_FOV), 960.0f / 540.0f, 0.1f, 100.0f);
+
+			//create model matrix
+			glm::mat4 model = glm::mat4(1.0f);
+
+			model = glm::translate(model, m_CubePos + m_LampPos);
+			model = glm::scale(model, glm::vec3(0.2f));
+
+			m_View = m_Camera->viewMatrix;
+
+			//construt model view projection
+			glm::mat4 mvp = m_Proj * m_View * model;
+
+			m_LampShader->SetUniformMat4f("u_MVP", mvp);
+
+			//draw texture
+			renderer.Draw(*m_VAO, *m_IndexBuffer, *m_LampShader);
+
+			m_LampShader->UnBind();
+		}
+		else if (m_DepthCheckbox)
+		{
+			m_DepthShader->Bind();
 
 			for (unsigned int i = 0; i < 10; i++)
 			{
@@ -261,118 +254,111 @@ namespace test {
 		else
 		{
 			// Load the Lamp
+			glStencilMask(0x00);
+
+			m_LampShader->Bind();
+
+			//Move Camera
+			m_Camera->SetYawPitch(m_YawPitch.x - 90.0f, m_YawPitch.y);
+			m_Proj = glm::perspective(glm::radians(m_FOV), 960.0f / 540.0f, 0.1f, 100.0f);
+
+			//create model matrix
+			glm::mat4 model = glm::mat4(1.0f);
+
+			model = glm::translate(model, m_CubePos + m_LampPos);
+			model = glm::scale(model, glm::vec3(0.2f));
+
+			m_View = m_Camera->viewMatrix;
+
+			//construt model view projection
+			glm::mat4 mvp = m_Proj * m_View * model;
+
+			m_LampShader->SetUniformMat4f("u_MVP", mvp);
+
+			//draw texture
+			renderer.Draw(*m_VAO, *m_IndexBuffer, *m_LampShader);
+
+			m_LampShader->UnBind();
+
+			//Load Box
+			glStencilFunc(GL_ALWAYS, 1, 0xFF);
+			glStencilMask(0xFF);
+
+			m_Shader->Bind();
+
+			m_TextureDiffuse->Bind();
+			m_TextureSpecular->Bind(1);
+
+			m_Shader->SetUniform3f("u_ObjectColor", m_CubeColor.x, m_CubeColor.y, m_CubeColor.z);
+
+			m_Shader->SetUniform3f("u_ViewPos", m_Camera->CameraPosition().x, m_Camera->CameraPosition().y, m_Camera->CameraPosition().z);
+
+			m_Shader->SetUniform1i("u_NumPointLights", 1);
+
+			m_Shader->SetUniform3f("u_PointLight[0].position", m_LampPos.x, m_LampPos.y, m_LampPos.z);
+			m_Shader->SetUniform3f("u_PointLight[0].ambient", m_LampAmbient.x, m_LampAmbient.y, m_LampAmbient.z);
+			m_Shader->SetUniform3f("u_PointLight[0].diffuse", m_LampDiffuse.x, m_LampDiffuse.y, m_LampDiffuse.z);
+			m_Shader->SetUniform3f("u_PointLight[0].specular", m_LampSpecular.x, m_LampSpecular.y, m_LampSpecular.z);
+			m_Shader->SetUniform1f("u_PointLight[0].constant", 1.0f);
+			m_Shader->SetUniform1f("u_PointLight[0].linear", 0.09f);
+			m_Shader->SetUniform1f("u_PointLight[0].quadratic", 0.032f);
+
+			m_Shader->SetUniform1f("u_Material.shininess", m_SpecularPower);
+
+			for (unsigned int i = 0; i < 10; i++)
 			{
-				glStencilMask(0x00);
-
-				m_LampShader->Bind();
-
-				//Move Camera
-				m_Camera->SetYawPitch(m_YawPitch.x - 90.0f, m_YawPitch.y);
-				m_Proj = glm::perspective(glm::radians(m_FOV), 960.0f / 540.0f, 0.1f, 100.0f);
-
 				//create model matrix
 				glm::mat4 model = glm::mat4(1.0f);
 
-				model = glm::translate(model, m_CubePos + m_LampPos);
-				model = glm::scale(model, glm::vec3(0.2f));
+				model = glm::translate(model, m_CubePos + cubePositions[i]);
+				model = glm::rotate(model, (float)glfwGetTime() * glm::radians(20.0f + i * 5.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 
 				m_View = m_Camera->viewMatrix;
 
 				//construt model view projection
 				glm::mat4 mvp = m_Proj * m_View * model;
 
-				m_LampShader->SetUniformMat4f("u_MVP", mvp);
+				m_Shader->SetUniformMat4f("u_MVP", mvp);
+				m_Shader->SetUniformMat4f("u_Model", model);
 
 				//draw texture
-				renderer.Draw(*m_VAO, *m_IndexBuffer, *m_LampShader);
-
-				m_LampShader->UnBind();
+				renderer.Draw(*m_VAO, *m_IndexBuffer, *m_Shader);
 			}
 
+			m_TextureDiffuse->UnBind();
+			m_Shader->UnBind();
+
+			glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+			glStencilMask(0x00);
+			glDisable(GL_DEPTH_TEST);
+
+			m_StencilShader->Bind();
+
+			for (unsigned int i = 0; i < 10; i++)
 			{
-				glStencilFunc(GL_ALWAYS, 1, 0xFF);
-				glStencilMask(0xFF);
+				//create model matrix
+				glm::mat4 model = glm::mat4(1.0f);
 
-				m_Shader->Bind();
+				model = glm::translate(model, m_CubePos + cubePositions[i]);
+				model = glm::scale(model, glm::vec3(1.1f));
+				model = glm::rotate(model, (float)glfwGetTime() * glm::radians(20.0f + i * 5.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 
-				m_TextureDiffuse->Bind();
-				m_TextureSpecular->Bind(1);
+				m_View = m_Camera->viewMatrix;
 
-				m_Shader->SetUniform3f("u_ObjectColor", m_CubeColor.x, m_CubeColor.y, m_CubeColor.z);
+				//construt model view projection
+				glm::mat4 mvp = m_Proj * m_View * model;
 
-				m_Shader->SetUniform3f("u_ViewPos", m_Camera->CameraPosition().x, m_Camera->CameraPosition().y, m_Camera->CameraPosition().z);
+				m_Shader->SetUniformMat4f("u_MVP", mvp);
 
-				m_Shader->SetUniform1i("u_NumPointLights", 1);
-
-				m_Shader->SetUniform3f("u_PointLight[0].position", m_LampPos.x, m_LampPos.y, m_LampPos.z);
-				m_Shader->SetUniform3f("u_PointLight[0].ambient", m_LampAmbient.x, m_LampAmbient.y, m_LampAmbient.z);
-				m_Shader->SetUniform3f("u_PointLight[0].diffuse", m_LampDiffuse.x, m_LampDiffuse.y, m_LampDiffuse.z);
-				m_Shader->SetUniform3f("u_PointLight[0].specular", m_LampSpecular.x, m_LampSpecular.y, m_LampSpecular.z);
-				m_Shader->SetUniform1f("u_PointLight[0].constant", 1.0f);
-				m_Shader->SetUniform1f("u_PointLight[0].linear", 0.09f);
-				m_Shader->SetUniform1f("u_PointLight[0].quadratic", 0.032f);
-
-				m_Shader->SetUniform1f("u_Material.shininess", m_SpecularPower);
-
-				//Move Camera
-				m_Camera->SetYawPitch(m_YawPitch.x - 90.0f, m_YawPitch.y);
-				m_Proj = glm::perspective(glm::radians(m_FOV), 960.0f / 540.0f, 0.1f, 100.0f);
-
-				for (unsigned int i = 0; i < 10; i++)
-				{
-					//create model matrix
-					glm::mat4 model = glm::mat4(1.0f);
-
-					model = glm::translate(model, m_CubePos + cubePositions[i]);
-					model = glm::rotate(model, (float)glfwGetTime() * glm::radians(20.0f + i * 5.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-
-					m_View = m_Camera->viewMatrix;
-
-					//construt model view projection
-					glm::mat4 mvp = m_Proj * m_View * model;
-
-					m_Shader->SetUniformMat4f("u_MVP", mvp);
-					m_Shader->SetUniformMat4f("u_Model", model);
-
-					//draw texture
-					renderer.Draw(*m_VAO, *m_IndexBuffer, *m_Shader);
-				}
-
-				m_TextureDiffuse->UnBind();
-				m_Shader->UnBind();
-
-				glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-				glStencilMask(0x00);
-				glDisable(GL_DEPTH_TEST);
-
-				m_StencilShader->Bind();
-
-				for (unsigned int i = 0; i < 10; i++)
-				{
-					//create model matrix
-					glm::mat4 model = glm::mat4(1.0f);
-
-					model = glm::translate(model, m_CubePos + cubePositions[i]);
-					model = glm::scale(model, glm::vec3(1.1f));
-					model = glm::rotate(model, (float)glfwGetTime() * glm::radians(20.0f + i * 5.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-
-					m_View = m_Camera->viewMatrix;
-
-					//construt model view projection
-					glm::mat4 mvp = m_Proj * m_View * model;
-
-					m_Shader->SetUniformMat4f("u_MVP", mvp);
-
-					//draw texture
-					renderer.Draw(*m_VAO, *m_IndexBuffer, *m_StencilShader);
-				}
-				
-				m_StencilShader->UnBind();
-
-				glStencilFunc(GL_ALWAYS, 1, 0xFF);
-				glStencilMask(0xFF);
-				glEnable(GL_DEPTH_TEST);
+				//draw texture
+				renderer.Draw(*m_VAO, *m_IndexBuffer, *m_StencilShader);
 			}
+				
+			m_StencilShader->UnBind();
+
+			glStencilFunc(GL_ALWAYS, 1, 0xFF);
+			glStencilMask(0xFF);
+			glEnable(GL_DEPTH_TEST);
 		}
 	}
 
