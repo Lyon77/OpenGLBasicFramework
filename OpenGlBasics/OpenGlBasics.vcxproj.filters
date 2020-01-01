@@ -489,6 +489,8 @@
     <None Include="res\shaders\Advanced.shader" />
     <None Include="res\shaders\Color.shader" />
     <None Include="res\shaders\Lamp.shader" />
+    <None Include="res\shaders\Depth.shader" />
+    <None Include="res\shaders\Stencil.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Renderer.h">

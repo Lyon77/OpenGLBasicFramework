@@ -26,6 +26,8 @@ namespace test {
 		std::unique_ptr <VertexBuffer> m_VertexBuffer;
 		std::unique_ptr <IndexBuffer> m_IndexBuffer;
 		std::unique_ptr <Shader> m_Shader;
+		std::unique_ptr <Shader> m_DepthShader;
+		std::unique_ptr <Shader> m_StencilShader;
 		std::unique_ptr <Shader> m_LampShader;
 
 		std::unique_ptr <Texture> m_TextureDiffuse;
@@ -68,5 +70,11 @@ namespace test {
 		glm::vec3 m_LampSpecular;
 
 		float m_SpecularPower;
+
+		//Depth Conditions
+		bool m_DepthCheckbox;
+
+		//Stencil Conditions
+		bool m_StencilCheckbox;
 	};
 }
