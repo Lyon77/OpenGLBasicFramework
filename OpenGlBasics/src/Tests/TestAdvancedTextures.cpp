@@ -57,14 +57,14 @@ namespace test {
 		};
 
 		unsigned int indicies[] = {
-			0, 1, 2,
-			2, 3, 0,
+			0, 2, 1,
+			2, 0, 3,
 
 			4, 5, 6,
 			6, 7, 4,
 
-			8, 9, 10,
-			10, 11, 8,
+			8, 10, 9,
+			10, 8, 11,
 
 			12, 13, 14,
 			14, 15, 12,
@@ -72,8 +72,8 @@ namespace test {
 			16, 17, 18,
 			18, 19, 16,
 
-			20, 21, 22,
-			22, 23, 20
+			20, 22, 21,
+			22, 20, 23
 		};
 
 		
@@ -128,7 +128,7 @@ namespace test {
 	void TestAdvancedTextures::OnRender()
 	{
 		GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
-		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 
 		Renderer renderer;
 
