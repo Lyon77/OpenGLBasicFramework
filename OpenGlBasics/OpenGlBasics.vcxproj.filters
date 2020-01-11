@@ -501,6 +501,8 @@
     <None Include="res\shaders\Depth.shader" />
     <None Include="res\shaders\Stencil.shader" />
     <None Include="res\shaders\CubeMap.shader" />
+    <None Include="res\shaders\Reflective.shader" />
+    <None Include="res\shaders\Refractive.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Renderer.h">

@@ -32,11 +32,8 @@ namespace test {
 		std::unique_ptr <IndexBuffer> m_SkyBoxIndexBuffer;
 
 		std::unique_ptr <Shader> m_Shader;
-		std::unique_ptr <Shader> m_LampShader;
+		std::unique_ptr <Shader> m_RefractiveShader;
 		std::unique_ptr <Shader> m_SkyBoxShader;
-
-		std::unique_ptr <Texture> m_TextureDiffuse;
-		std::unique_ptr <Texture> m_TextureSpecular;
 
 		std::unique_ptr <CubeMap> m_SkyBoxTexture;
 
@@ -52,8 +49,6 @@ namespace test {
 		double lastX = 960.0f / 2.0f, lastY = 540.0f / 2.0f;
 		bool firstMouse = true;
 
-		//location of the lamp light
-		glm::vec3 m_LampPos = glm::vec3(1.2f, 1.0f, 2.0f);
 		glm::vec3 m_CubePos;
 
 		glm::vec3 cubePositions[10] = {
@@ -69,13 +64,8 @@ namespace test {
 		   glm::vec3(-1.3f,  1.0f, -1.5f)
 		};
 
-		//Lighting Conditions
-		glm::vec3 m_CubeColor;
-
-		glm::vec3 m_LampAmbient;
-		glm::vec3 m_LampDiffuse;
-		glm::vec3 m_LampSpecular;
-
-		float m_SpecularPower;
+		//Cube Refration
+		bool m_Refractive;
+		float m_Ratio;
 	};
 }

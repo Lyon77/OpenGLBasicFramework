@@ -166,6 +166,8 @@
     <None Include="res\shaders\CubeMap.shader" />
     <None Include="res\shaders\Depth.shader" />
     <None Include="res\shaders\Lamp.shader" />
+    <None Include="res\shaders\Reflective.shader" />
+    <None Include="res\shaders\Refractive.shader" />
     <None Include="res\shaders\Stencil.shader" />
     <None Include="src\vendor\glm\detail\func_common.inl" />
     <None Include="src\vendor\glm\detail\func_common_simd.inl" />
