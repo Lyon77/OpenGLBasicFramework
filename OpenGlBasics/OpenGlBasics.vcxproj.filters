@@ -90,6 +90,9 @@
     <ClCompile Include="src\CubeMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Tests\TestAdvancedLighting.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\Basic.shader" />
@@ -496,13 +499,14 @@
       <Filter>Header Files</Filter>
     </None>
     <None Include="res\shaders\Advanced.shader" />
-    <None Include="res\shaders\Color.shader" />
     <None Include="res\shaders\Lamp.shader" />
     <None Include="res\shaders\Depth.shader" />
     <None Include="res\shaders\Stencil.shader" />
     <None Include="res\shaders\CubeMap.shader" />
     <None Include="res\shaders\Reflective.shader" />
     <None Include="res\shaders\Refractive.shader" />
+    <None Include="res\shaders\Phong.shader" />
+    <None Include="res\shaders\BlinnPhong.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Renderer.h">
@@ -1313,6 +1317,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\CubeMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Tests\TestAdvancedLighting.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

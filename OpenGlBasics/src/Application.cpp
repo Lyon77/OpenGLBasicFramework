@@ -21,6 +21,7 @@
 #include "Tests/TestDepthStencilBlending.h"
 #include "Tests/TestFrameBuffer.h"
 #include "Tests/TestCubeMaps.h"
+#include "Tests/TestAdvancedLighting.h"
 
 int main(void)
 {
@@ -74,8 +75,9 @@ int main(void)
 		testMenu->RegisterTest<test::TestAdvancedTextures>("Advanced Texture and Camera Control");
 		testMenu->RegisterTest<test::TestLighting>("Lighting");
 		testMenu->RegisterTest<test::TestDepthStencilBlending>("Depth Testing, Stencil Testing, and Blending");
-		testMenu->RegisterTest<test::TestFrameBuffer>("PostProcessing Effects");
+		testMenu->RegisterTest<test::TestFrameBuffer>("PostProcessing Effects (work in progress)");
 		testMenu->RegisterTest<test::TestCubeMaps>("Skybox and Reflective Materials");
+		testMenu->RegisterTest<test::TestAdvancedLighting>("Advanced Lighting");
 
 		//keep track of time
 		float deltaTime = 0.0f;

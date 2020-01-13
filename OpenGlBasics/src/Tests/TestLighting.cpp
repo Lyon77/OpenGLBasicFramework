@@ -104,7 +104,7 @@ namespace test {
 		m_IndexBuffer = std::make_unique<IndexBuffer>(indicies, 6 * 6);
 
 		//create Vertex and Fragment source
-		m_Shader = std::make_unique<Shader>("res/shaders/Color.shader");
+		m_Shader = std::make_unique<Shader>("res/shaders/Phong.shader");
 
 		m_LampShader = std::make_unique<Shader>("res/shaders/Lamp.shader");
 
@@ -202,7 +202,7 @@ namespace test {
 			//create model matrix
 			glm::mat4 model = glm::mat4(1.0f);
 
-			model = glm::translate(model, m_CubePos + m_LampPos);
+			model = glm::translate(model, m_LampPos);
 			model = glm::scale(model, glm::vec3(0.2f));
 
 			m_View = m_Camera->viewMatrix;
@@ -272,7 +272,7 @@ namespace test {
 
 	void TestLighting::OnImGuiRender()
 	{
-		ImGui::Text("Welcome to the Lighting Test Enviroment. Use WASD to move around and QE to zoom in and out. There are more setting options below.");
+		ImGui::Text("Welcome to the Lighting Test Enviroment. The lighting enviroment uses Phong Lighting with Ambient, Diffuse, and Specular factors. Use WASD to move around and QE to zoom in and out. There are more setting options below.");
 		if (ImGui::CollapsingHeader("Cube Options")) {
 			ImGui::SliderFloat3("Translate Cube", &m_CubePos.x, -5.0f, 5.0f);
 			ImGui::ColorEdit3("Cube Color", &m_CubeColor.x);
