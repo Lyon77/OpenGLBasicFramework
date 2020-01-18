@@ -9,3 +9,6 @@ There are 5 different "Tests" for what the current application can achieve.
 3. Control a camera around a 3-D enviroment with the ability to change position as well as rotation
 4. Can alter Point, Direction, and Spot Lights in an enviroment to visualize ambient, diffuse, and specular calculations within the shaders
 5. Can visualize Depth, Stencil, and Blending in an enviroment
+6. Use various post processing elements to change how the enviroment looks like
+7. Experiments with Glass and Skyboxes
+8. Switches to a BlinnPhong shading type rather than a Phong shading type
