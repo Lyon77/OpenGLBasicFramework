@@ -15,7 +15,8 @@ namespace test {
 		: m_Proj(glm::perspective(glm::radians(45.0f), 960.0f / 540.0f, 0.1f, 100.0f)), m_View(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -3.0))), //glm::perspective(glm::radians(45.0f), 960.0f / 540.0f, 0.1f, 500.0f)
 		m_CubePos(0, 0, 0), m_FOV(45.0f), m_YawPitch(glm::vec2(0.0f, 0.0f)), m_Speed(2.5f),
 		m_CubeColor(glm::vec3(1.0f, 1.0f, 1.0f)), m_LampAmbient(glm::vec3(0.2f, 0.2f, 0.2f)), m_LampDiffuse(glm::vec3(0.5f, 0.5f, 0.5f)), m_LampSpecular(glm::vec3(1.0f, 1.0f, 1.0f)),
-		m_SpecularPower(5.0f)
+		m_SpecularPower(5.0f),
+		m_AttenuationCheckbox(true)
 	{
 
 		//Define Triangle
@@ -114,6 +115,7 @@ namespace test {
 		m_TextureDiffuse = std::make_unique<Texture>("res/textures/Box_diffuse.png");
 		m_TextureSpecular = std::make_unique<Texture>("res/textures/Box_specular.png");
 
+		m_Shader->SetUniform1i("u_Gamma", false);
 		m_Shader->SetUniform1i("u_Material.diffuse", 0);
 		m_Shader->SetUniform1i("u_Material.specular", 1);
 
@@ -143,6 +145,8 @@ namespace test {
 		// Load the box
 		{
 			m_Shader->Bind();
+
+			m_Shader->SetUniform1i("u_Att", m_AttenuationCheckbox);
 
 			m_TextureDiffuse->Bind();
 			m_TextureSpecular->Bind(1);
@@ -284,6 +288,7 @@ namespace test {
 			ImGui::ColorEdit3("Light Ambient", &m_LampAmbient.x);
 			ImGui::ColorEdit3("Light Diffuse", &m_LampDiffuse.x);
 			ImGui::ColorEdit3("Light Specular", &m_LampSpecular.x);
+			ImGui::Checkbox("Attenuation", &m_AttenuationCheckbox);
 		}
 
 		if (ImGui::CollapsingHeader("Camera Options")) {

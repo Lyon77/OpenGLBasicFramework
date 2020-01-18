@@ -83,8 +83,8 @@ struct Material {
 };
 
 uniform Material u_Material;
-
-uniform float test;
+uniform bool u_Gamma;
+uniform bool u_Att;
 
 //Function Prototypes
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
@@ -118,6 +118,12 @@ void main()
 	}
 
 	color = vec4(result * u_ObjectColor, 1.0);
+	
+	if (u_Gamma)
+	{
+		//Add Gamma Correction
+		color.rgb = pow(color.rgb, vec3(1.0 / 2.2));
+	}
 };
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
@@ -144,10 +150,6 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 	vec3 lightDir = normalize(light.position - fragPos);
 	vec3 halfwayDir = normalize(lightDir + viewDir);
 
-	//Calculate Attenuation
-	float distance = length(light.position - fragPos);
-	float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
-
 	//Ambient Calculation
 	vec3 ambient = vec3(texture(u_Material.diffuse, v_TexCoords)) * light.ambient;
 
@@ -158,6 +160,15 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 	//Specular Calculation
 	float spec = pow(max(dot(normal, halfwayDir), 0.0), pow(2, u_Material.shininess));
 	vec3 specular = (spec * vec3(texture(u_Material.specular, v_TexCoords))) * light.specular;
+
+	// simple attenuation
+	float distance = length(light.position - v_FragPos);
+	float attenuation = 1.0 / (u_Gamma ? distance * distance : distance);
+
+	if (!u_Att)
+	{
+		attenuation = 1.0;
+	}
 
 	return (ambient + diffuse + specular) * attenuation;
 }
@@ -185,5 +196,14 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 	diffuse *= intensity;
 	specular *= intensity;
 
-	return ambient + diffuse + specular;
+	// simple attenuation
+	float distance = length(light.position - v_FragPos);
+	float attenuation = 1.0 / (u_Gamma ? distance * distance : distance);
+
+	if (!u_Att)
+	{
+		attenuation = 1.0;
+	}
+
+	return (ambient + diffuse + specular) * attenuation;
 }

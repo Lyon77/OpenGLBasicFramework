@@ -4,17 +4,16 @@
 #include "VertexBuffer.h"
 #include "VertexBufferLayout.h"
 #include "Texture.h"
-#include "FrameBuffer.h"
 #include "Camera.h"
 
 #include <memory>
 
 namespace test {
 
-	class TestFrameBuffer : public Test {
+	class TestShadows : public Test {
 	public:
-		TestFrameBuffer();
-		~TestFrameBuffer();
+		TestShadows();
+		~TestShadows();
 
 		void OnUpdate(float deltaTime) override;
 		void OnRender() override;
@@ -32,13 +31,6 @@ namespace test {
 		std::unique_ptr <Texture> m_TextureDiffuse;
 		std::unique_ptr <Texture> m_TextureSpecular;
 
-		//FrameBuffer
-		std::unique_ptr <VertexArray> m_FrameVAO;
-		std::unique_ptr <VertexBuffer> m_FrameVertexBuffer;
-		std::unique_ptr <IndexBuffer> m_FrameIndexBuffer;
-		std::unique_ptr <Shader> m_FrameShader;
-		std::unique_ptr <FrameBuffer> m_FrameBuffer;
-
 		glm::mat4 m_Proj, m_View;
 
 		//Camera Information
@@ -48,7 +40,7 @@ namespace test {
 		glm::vec2 m_YawPitch;
 
 		//Mouse Calculations
-		double lastX = 960.0f / 2.0f, lastY = 540.0f / 2.0f;
+		float lastX = 960.0f / 2.0f, lastY = 540.0f / 2.0f;
 		bool firstMouse = true;
 
 		//location of the lamp light
@@ -77,6 +69,6 @@ namespace test {
 
 		float m_SpecularPower;
 
-		int m_Type;
+		bool m_AttenuationCheckbox;
 	};
 }

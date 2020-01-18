@@ -1,4 +1,4 @@
-#include "TestFrameBuffer.h"
+#include "TestShadows.h"
 
 #include <iostream>
 
@@ -11,12 +11,12 @@
 
 namespace test {
 
-	TestFrameBuffer::TestFrameBuffer()
+	TestShadows::TestShadows()
 		: m_Proj(glm::perspective(glm::radians(45.0f), 960.0f / 540.0f, 0.1f, 100.0f)), m_View(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -3.0))), //glm::perspective(glm::radians(45.0f), 960.0f / 540.0f, 0.1f, 500.0f)
 		m_CubePos(0, 0, 0), m_FOV(45.0f), m_YawPitch(glm::vec2(0.0f, 0.0f)), m_Speed(2.5f),
 		m_CubeColor(glm::vec3(1.0f, 1.0f, 1.0f)), m_LampAmbient(glm::vec3(0.2f, 0.2f, 0.2f)), m_LampDiffuse(glm::vec3(0.5f, 0.5f, 0.5f)), m_LampSpecular(glm::vec3(1.0f, 1.0f, 1.0f)),
 		m_SpecularPower(5.0f),
-		m_Type(1)
+		m_AttenuationCheckbox(true)
 	{
 
 		//Define Triangle
@@ -81,29 +81,8 @@ namespace test {
 			22, 20, 23
 		};
 
-		float frameScreenPositions[] = {
-		//  position      texCoords
-			-1.0, 1.0,    0.0f, 1.0f,
-			-1.0,-1.0,    0.0f, 0.0f,
-			 1.0,-1.0,    1.0f, 0.0f,
-			 1.0, 1.0,    1.0f, 1.0f
-		};
-
-		unsigned int frameScreenIndicies[] = {
-			0, 1, 2,
-			2, 3, 0
-		};
-
-		//Face Culling
-		GLCall(glEnable(GL_CULL_FACE));
-
 		//Depth Testing
 		GLCall(glEnable(GL_DEPTH_TEST));
-
-		//Stencil Testing
-		GLCall(glEnable(GL_STENCIL_TEST));
-		GLCall(glStencilFunc(GL_ALWAYS, 1, 0xFF));
-		GLCall(glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE));
 
 		//Blending for transparent bits in the texture
 		GLCall(glEnable(GL_BLEND));
@@ -111,11 +90,9 @@ namespace test {
 
 		//create vertex array
 		m_VAO = std::make_unique<VertexArray>();
-		m_FrameVAO = std::make_unique<VertexArray>();
 
 		//create vertex buffer
-		m_VertexBuffer = std::make_unique<VertexBuffer>(positions, 8 * 4 * 6 * sizeof(float)); //8 values, 4, points, 6 faces
-		m_FrameVertexBuffer = std::make_unique<VertexBuffer>(frameScreenPositions, 4 * 4 * 1 * sizeof(float));
+		m_VertexBuffer = std::make_unique<VertexBuffer>(positions, 8 * 4 * 6 * sizeof(float)); //3 values, 4, points, 6 faces
 
 		//set vertex buffer to array
 		VertexBufferLayout layout;
@@ -124,65 +101,52 @@ namespace test {
 		layout.Push<float>(2);
 		m_VAO->AddBuffer(*m_VertexBuffer, layout);
 
-		VertexBufferLayout frameLayout;
-		frameLayout.Push<float>(2);
-		frameLayout.Push<float>(2);
-		m_FrameVAO->AddBuffer(*m_FrameVertexBuffer, frameLayout);
-
 		//create index buffer
-		m_IndexBuffer = std::make_unique<IndexBuffer>(indicies, 6 * 6); //6 points, 6 faces
-		m_FrameIndexBuffer = std::make_unique<IndexBuffer>(frameScreenIndicies, 6 * 1);
+		m_IndexBuffer = std::make_unique<IndexBuffer>(indicies, 6 * 6);
 
 		//create Vertex and Fragment source
-		m_Shader = std::make_unique<Shader>("res/shaders/Phong.shader");
-		m_Shader->Bind();
-		m_Shader->SetUniform1i("u_Material.diffuse", 0);
-		m_Shader->SetUniform1i("u_Material.specular", 1);
-		m_Shader->UnBind();
+		m_Shader = std::make_unique<Shader>("res/shaders/BlinnPhong.shader");
 
 		m_LampShader = std::make_unique<Shader>("res/shaders/Lamp.shader");
 
-		m_FrameShader = std::make_unique<Shader>("res/shaders/PostProcessing.shader");
+		m_Shader->Bind();
 
 		//Load Texture
 		m_TextureDiffuse = std::make_unique<Texture>("res/textures/Box_diffuse.png");
 		m_TextureSpecular = std::make_unique<Texture>("res/textures/Box_specular.png");
 
-		//Set up FrameBuffer
-		m_FrameBuffer = std::make_unique<FrameBuffer>();
+		m_Shader->SetUniform1i("u_Gamma", false);
+		m_Shader->SetUniform1i("u_Material.diffuse", 0);
+		m_Shader->SetUniform1i("u_Material.specular", 1);
 
 		//Set Camera
 		m_Camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 
-	TestFrameBuffer::~TestFrameBuffer()
+	TestShadows::~TestShadows()
 	{
 	}
 
-	void TestFrameBuffer::OnUpdate(float deltaTime)
+	void TestShadows::OnUpdate(float deltaTime)
 	{
 	}
 
-	void TestFrameBuffer::OnRender()
+	void TestShadows::OnRender()
 	{
-		//Set FrameBuffer to the created one
-		m_FrameBuffer->Bind();
-
-		glEnable(GL_DEPTH_TEST);
 		GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 
 		Renderer renderer;
 
+		//m_Texture->Bind();
+
 		//process user input
 
-		//Move Camera
-		m_Camera->SetYawPitch(m_YawPitch.x - 90.0f, m_YawPitch.y);
-		m_Proj = glm::perspective(glm::radians(m_FOV), 960.0f / 540.0f, 0.1f, 100.0f);
-
+		// Load the box
 		{
-			// Load the box
 			m_Shader->Bind();
+
+			m_Shader->SetUniform1i("u_Att", m_AttenuationCheckbox);
 
 			m_TextureDiffuse->Bind();
 			m_TextureSpecular->Bind(1);
@@ -202,6 +166,10 @@ namespace test {
 			m_Shader->SetUniform1f("u_PointLight[0].quadratic", 0.032f);
 
 			m_Shader->SetUniform1f("u_Material.shininess", m_SpecularPower);
+
+			//Move Camera
+			m_Camera->SetYawPitch(m_YawPitch.x - 90.0f, m_YawPitch.y);
+			m_Proj = glm::perspective(glm::radians(m_FOV), 960.0f / 540.0f, 0.1f, 100.0f);
 
 			for (unsigned int i = 0; i < 10; i++)
 			{
@@ -227,8 +195,8 @@ namespace test {
 			m_Shader->UnBind();
 		}
 
+		// Load the Lamp
 		{
-			// Load the Lamp
 			m_LampShader->Bind();
 
 			//Move Camera
@@ -254,22 +222,9 @@ namespace test {
 			m_LampShader->UnBind();
 		}
 
-		m_FrameBuffer->UnBind();
-		glDisable(GL_DEPTH_TEST);
-		GLCall(glClearColor(1.0f, 1.0f, 1.0f, 1.0f));
-		GLCall(glClear(GL_COLOR_BUFFER_BIT));
-
-		{
-			m_FrameShader->Bind();
-			m_FrameShader->SetUniform1i("u_Type", m_Type);
-
-			m_FrameBuffer->BindTexture();
-
-			renderer.Draw(*m_FrameVAO, *m_FrameIndexBuffer, *m_FrameShader);
-		}
 	}
 
-	void TestFrameBuffer::MouseCallback(GLFWwindow* window, double xpos, double ypos)
+	void TestShadows::MouseCallback(GLFWwindow* window, double xpos, double ypos)
 	{
 		if (firstMouse) // this bool variable is initially set to true
 		{
@@ -278,19 +233,19 @@ namespace test {
 			firstMouse = false;
 		}
 
-		double xOffset = xpos - lastX;
-		double yOffset = lastY - ypos;
+		float xOffset = xpos - lastX;
+		float yOffset = lastY - ypos;
 		lastX = xpos;
 		lastY = ypos;
 
-		double sensitivity = 0.05f;
+		float sensitivity = 0.05f;
 		xOffset *= sensitivity;
 		yOffset *= sensitivity;
 
-		m_Camera->UpdateYawPitch((float)xOffset, (float)yOffset);
+		m_Camera->UpdateYawPitch(xOffset, yOffset);
 	}
 
-	void TestFrameBuffer::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+	void TestShadows::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 	{
 		if (m_FOV >= 1.0f && m_FOV <= 45.0f)
 			m_FOV -= yoffset;
@@ -302,7 +257,7 @@ namespace test {
 		m_Proj = glm::perspective(glm::radians(m_FOV), 960.0f / 540.0f, 0.1f, 100.0f);
 	}
 
-	void TestFrameBuffer::ProcessInput(GLFWwindow* window, float deltaTime)
+	void TestShadows::ProcessInput(GLFWwindow* window, float deltaTime)
 	{
 		float cameraSpeed = m_Speed * deltaTime; // adjust accordingly
 		if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
@@ -319,22 +274,9 @@ namespace test {
 			m_Camera->Right(cameraSpeed);
 	}
 
-	void TestFrameBuffer::OnImGuiRender()
+	void TestShadows::OnImGuiRender()
 	{
-		ImGui::Text("Welcome to the Post Processing Test Enviroment. This enviroment uses a FrameBuffer to store the drawn information and them processes the texture generated by the FrameBuffer.");
-		ImGui::Text("1. Normal");
-		ImGui::Text("2. Inverted");
-		ImGui::Text("3. GreyScale");
-		ImGui::Text("4. Sharpen");
-		ImGui::Text("5. Blur");
-		ImGui::SliderInt("Post Processing Type", &m_Type, 1, 5);
-
-		if (ImGui::CollapsingHeader("Camera Options")) {
-			ImGui::SliderFloat2("Yaw Pitch", &m_YawPitch.x, -89.0f, 89.0f);
-			ImGui::SliderFloat("FOV", &m_FOV, 1.0f, 89.0f);
-			ImGui::SliderFloat("Speed", &m_Speed, 0.5f, 5.0f);
-		}
-
+		ImGui::Text("Welcome to the Advanced Lighting Test Enviroment. This uses Blinn-Phong lighting. Use WASD to move around and QE to zoom in and out. There are more setting options below.");
 		if (ImGui::CollapsingHeader("Cube Options")) {
 			ImGui::SliderFloat3("Translate Cube", &m_CubePos.x, -5.0f, 5.0f);
 			ImGui::ColorEdit3("Cube Color", &m_CubeColor.x);
@@ -346,6 +288,13 @@ namespace test {
 			ImGui::ColorEdit3("Light Ambient", &m_LampAmbient.x);
 			ImGui::ColorEdit3("Light Diffuse", &m_LampDiffuse.x);
 			ImGui::ColorEdit3("Light Specular", &m_LampSpecular.x);
+			ImGui::Checkbox("Attenuation", &m_AttenuationCheckbox);
+		}
+
+		if (ImGui::CollapsingHeader("Camera Options")) {
+			ImGui::SliderFloat2("Yaw Pitch", &m_YawPitch.x, -89.0f, 89.0f);
+			ImGui::SliderFloat("FOV", &m_FOV, 1.0f, 89.0f);
+			ImGui::SliderFloat("Speed", &m_Speed, 0.5f, 5.0f);
 		}
 
 		//displays framerate

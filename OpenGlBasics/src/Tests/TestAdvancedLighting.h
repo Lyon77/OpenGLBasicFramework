@@ -68,5 +68,7 @@ namespace test {
 		glm::vec3 m_LampSpecular;
 
 		float m_SpecularPower;
+
+		bool m_AttenuationCheckbox;
 	};
 }

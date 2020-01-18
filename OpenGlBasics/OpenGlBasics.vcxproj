@@ -136,6 +136,7 @@
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\CubeMap.cpp" />
+    <ClCompile Include="src\FrameBuffer.cpp" />
     <ClCompile Include="src\IndexBuffer.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\Shader.cpp" />
@@ -146,6 +147,7 @@
     <ClCompile Include="src\Tests\TestDepthStencilBlending.cpp" />
     <ClCompile Include="src\Tests\TestFrameBuffer.cpp" />
     <ClCompile Include="src\Tests\TestLighting.cpp" />
+    <ClCompile Include="src\Tests\TestShadows.cpp" />
     <ClCompile Include="src\Tests\TestTexture2D.cpp" />
     <ClCompile Include="src\Texture.cpp" />
     <ClCompile Include="src\vendor\glm\detail\glm.cpp" />
@@ -168,6 +170,7 @@
     <None Include="res\shaders\CubeMap.shader" />
     <None Include="res\shaders\Depth.shader" />
     <None Include="res\shaders\Lamp.shader" />
+    <None Include="res\shaders\PostProcessing.shader" />
     <None Include="res\shaders\Reflective.shader" />
     <None Include="res\shaders\Refractive.shader" />
     <None Include="res\shaders\Stencil.shader" />
@@ -309,6 +312,7 @@
   <ItemGroup>
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\CubeMap.h" />
+    <ClInclude Include="src\FrameBuffer.h" />
     <ClInclude Include="src\IndexBuffer.h" />
     <ClInclude Include="src\Renderer.h" />
     <ClInclude Include="src\Shader.h" />
@@ -319,6 +323,7 @@
     <ClInclude Include="src\Tests\TestDepthStencilBlending.h" />
     <ClInclude Include="src\Tests\TestFrameBuffer.h" />
     <ClInclude Include="src\Tests\TestLighting.h" />
+    <ClInclude Include="src\Tests\TestShadows.h" />
     <ClInclude Include="src\Tests\TestTexture2D.h" />
     <ClInclude Include="src\Texture.h" />
     <ClInclude Include="src\vendor\glm\common.hpp" />
