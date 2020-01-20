@@ -149,7 +149,7 @@ namespace test {
 		m_TextureSpecular = std::make_unique<Texture>("res/textures/Box_specular.png");
 
 		//Set up FrameBuffer
-		m_FrameBuffer = std::make_unique<FrameBuffer>();
+		m_FrameBuffer = std::make_unique<FrameBuffer>(0);
 
 		//Set Camera
 		m_Camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -255,7 +255,7 @@ namespace test {
 		}
 
 		m_FrameBuffer->UnBind();
-		glDisable(GL_DEPTH_TEST);
+		GLCall(glDisable(GL_DEPTH_TEST));
 		GLCall(glClearColor(1.0f, 1.0f, 1.0f, 1.0f));
 		GLCall(glClear(GL_COLOR_BUFFER_BIT));
 

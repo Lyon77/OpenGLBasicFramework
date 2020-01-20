@@ -4,8 +4,9 @@
 
 #include "stb_image/stb_header.h"
 
+//Generates Color Cube Map
 CubeMap::CubeMap(const std::vector<std::string> textures_faces)
-	: m_RendererID(0), m_FilePaths(textures_faces), m_LocalBuffer(nullptr), m_Width(0), m_Height(0), m_BPP(0)
+	: m_FilePaths(textures_faces), m_LocalBuffer(0), m_Width(0), m_Height(0), m_BPP(0)
 {
 	//Seems like you need to flip when using png and not jpg
 	stbi_set_flip_vertically_on_load(false);
@@ -39,6 +40,34 @@ CubeMap::CubeMap(const std::vector<std::string> textures_faces)
 
 	GLCall(glBindTexture(GL_TEXTURE_CUBE_MAP, 0));
 
+}
+
+//Generates Depth CubeMap
+CubeMap::CubeMap()
+	: m_FilePaths(NULL), m_LocalBuffer(NULL), m_Width(1024), m_Height(1024), m_BPP(NULL)
+{
+	//Seems like you need to flip when using png and not jpg
+	stbi_set_flip_vertically_on_load(false);
+
+	//load texture
+	GLCall(glGenTextures(1, &m_RendererID));
+	GLCall(glBindTexture(GL_TEXTURE_CUBE_MAP, m_RendererID));
+
+	//send to opengl
+	for (GLuint i = 0; i < 6; i++)
+	{
+		GLCall(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, m_Width, m_Height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL));
+	}
+
+	//texture parameters
+	GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+	GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+	GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+	GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+	GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
+
+
+	GLCall(glBindTexture(GL_TEXTURE_CUBE_MAP, 0));
 }
 
 CubeMap::~CubeMap()

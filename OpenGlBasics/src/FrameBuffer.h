@@ -9,7 +9,7 @@ private:
 	unsigned int m_TextureColorBuffer;
 	unsigned int m_RBO;
 public:
-	FrameBuffer();
+	FrameBuffer(unsigned int type, unsigned int cubeMap = 0);
 	~FrameBuffer();
 
 	void Bind(unsigned int slot = 0) const;
