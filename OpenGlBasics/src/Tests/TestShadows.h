@@ -37,7 +37,8 @@ namespace test {
 		std::unique_ptr <VertexArray> m_FrameVAO;
 		std::unique_ptr <VertexBuffer> m_FrameVertexBuffer;
 		std::unique_ptr <IndexBuffer> m_FrameIndexBuffer;
-		std::unique_ptr <Shader> m_FrameShader;
+		std::unique_ptr <Shader> m_DirShader;
+		std::unique_ptr <Shader> m_PointSpotShader;
 		std::unique_ptr <FrameBuffer> m_FrameBuffer;
 		std::unique_ptr <CubeMap> m_FrameCubeMap;
 

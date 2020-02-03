@@ -18,6 +18,7 @@ FrameBuffer::FrameBuffer(unsigned int type, unsigned int cubeMap)
 	
 	m_TextureColorBuffer = NULL;
 	m_RBO = NULL;
+	m_CubeID = NULL;
 
 	if (type == 0) //Color
 	{
@@ -67,9 +68,12 @@ FrameBuffer::FrameBuffer(unsigned int type, unsigned int cubeMap)
 	}
 	else if (type == 2) //CubeMap
 	{
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, cubeMap, 0);
-		glDrawBuffer(GL_NONE);
-		glReadBuffer(GL_NONE);
+		m_CubeID = cubeMap;
+		glBindTexture(GL_TEXTURE_CUBE_MAP, m_CubeID);
+		GLCall(glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_CubeID, 0));
+		GLCall(glDrawBuffer(GL_NONE));
+		GLCall(glReadBuffer(GL_NONE));
+		
 	}
 
 	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
@@ -99,5 +103,16 @@ void FrameBuffer::BindTexture(unsigned int slot) const
 void FrameBuffer::UnBindTexture() const
 {
 	GLCall(glBindTexture(GL_TEXTURE_2D, 0));
+}
+
+void FrameBuffer::BindCubeTexture(unsigned int slot) const
+{
+	GLCall(glActiveTexture(GL_TEXTURE0 + slot));
+	GLCall(glBindTexture(GL_TEXTURE_CUBE_MAP, m_CubeID));
+}
+
+void FrameBuffer::UnBindCubeTexture() const
+{
+	GLCall(glBindTexture(GL_TEXTURE_CUBE_MAP, 0));
 }
 

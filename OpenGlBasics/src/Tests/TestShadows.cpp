@@ -131,7 +131,8 @@ namespace test {
 
 		m_LampShader = std::make_unique<Shader>("res/shaders/Lamp.shader");
 
-		m_FrameShader = std::make_unique<Shader>("res/shaders/ShadowDepth.shader");
+		m_DirShader = std::make_unique<Shader>("res/shaders/ShadowDir.shader");
+		m_PointSpotShader = std::make_unique<Shader>("res/shaders/ShadowPointSpot.shader");
 
 		m_Shader->Bind();
 
@@ -147,7 +148,7 @@ namespace test {
 
 		//Set up FrameBuffer and CubeMap
 		m_FrameCubeMap = std::make_unique<CubeMap>();
-		m_FrameBuffer = std::make_unique<FrameBuffer>(1, m_FrameCubeMap->GetID());
+		m_FrameBuffer = std::make_unique<FrameBuffer>(2, m_FrameCubeMap->GetID());
 
 		//Set Camera
 		m_Camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -165,14 +166,15 @@ namespace test {
 	{
 		Renderer renderer;
 
-		//Set FrameBuffer to the created one
-		m_FrameBuffer->Bind();
-		GLCall(glClear(GL_DEPTH_BUFFER_BIT));
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 		GLCall(glViewport(0, 0, 1024, 1024));
 
 		//Configure Matricies and Shaders
-		glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 100.0f);
+		glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), 1.0f, 1.0f, 25.0f);
 
+		float near_plane = 1.0f;
+		float far_plane = 25.0f;
 		std::vector<glm::mat4> shadowTransforms;
 		shadowTransforms.push_back(shadowProj *
 			glm::lookAt(m_LampPos, m_LampPos + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
@@ -187,10 +189,19 @@ namespace test {
 		shadowTransforms.push_back(shadowProj *
 			glm::lookAt(m_LampPos, m_LampPos + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0)));
 
-		glm::mat4 lightView = glm::lookAt(m_LampPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
-		glm::mat4 lightSpaceMatrix = shadowProj * lightView;
+		//glm::mat4 lightView = glm::lookAt(m_LampPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+		//glm::mat4 lightSpaceMatrix = shadowProj * lightView;
 
-		m_FrameShader->Bind();
+		//Set FrameBuffer to the created one
+		m_FrameBuffer->Bind();
+		glClear(GL_DEPTH_BUFFER_BIT);
+
+		m_PointSpotShader->Bind();
+		m_PointSpotShader->SetUniform1f("u_FarPlane", far_plane);
+		m_PointSpotShader->SetUniform3f("u_LightPos", m_LampPos.x, m_LampPos.y, m_LampPos.z);
+
+		for (unsigned int i = 0; i < 6; ++i)
+			m_PointSpotShader->SetUniformMat4f("u_ShadowMatrices[" + std::to_string(i) + "]", shadowTransforms[i]);
 
 		//Render Scene using Shadow Depth Shader
 		for (unsigned int i = 0; i < 10; i++)
@@ -201,16 +212,20 @@ namespace test {
 			model = glm::translate(model, m_CubePos + cubePositions[i]);
 			//model = glm::rotate(model, (float)glfwGetTime() * glm::radians(20.0f + i * 5.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 
-			//construt model view projection
-			glm::mat4 mvp = lightSpaceMatrix * model;
+			////construt model view projection
+			//glm::mat4 mvp = lightSpaceMatrix * model;
+			//m_Shader->SetUniformMat4f("u_MVP", mvp);
 
-			m_Shader->SetUniformMat4f("u_MVP", mvp);
+			m_PointSpotShader->SetUniformMat4f("u_Model", model);
 
 			//draw texture
-			renderer.Draw(*m_VAO, *m_IndexBuffer, *m_FrameShader);
+			renderer.Draw(*m_VAO, *m_IndexBuffer, *m_PointSpotShader);
 		}
 
+		m_PointSpotShader->UnBind();
 		m_FrameBuffer->UnBind();
+
+
 		glViewport(0, 0, 960, 540);
 		GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
@@ -225,9 +240,11 @@ namespace test {
 
 			m_TextureDiffuse->Bind();
 			m_TextureSpecular->Bind(1);
-			m_FrameBuffer->BindTexture(2);
+			m_FrameBuffer->BindCubeTexture(3);
 
-			m_Shader->SetUniformMat4f("u_LightSpaceMatrix", lightSpaceMatrix);
+			//m_Shader->SetUniformMat4f("u_LightSpaceMatrix", lightSpaceMatrix);
+
+			m_Shader->SetUniform1f("u_FarPlane", far_plane);
 
 			m_Shader->SetUniform3f("u_ObjectColor", m_CubeColor.x, m_CubeColor.y, m_CubeColor.z);
 
@@ -269,6 +286,7 @@ namespace test {
 				renderer.Draw(*m_VAO, *m_IndexBuffer, *m_Shader);
 			}
 
+			m_FrameBuffer->UnBindCubeTexture();
 			m_TextureDiffuse->UnBind();
 			m_Shader->UnBind();
 		}

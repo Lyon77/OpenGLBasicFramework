@@ -514,8 +514,9 @@
     <None Include="res\shaders\Phong.shader" />
     <None Include="res\shaders\BlinnPhong.shader" />
     <None Include="res\shaders\PostProcessing.shader" />
-    <None Include="res\shaders\ShadowDepth.shader" />
     <None Include="res\shaders\Shadow.shader" />
+    <None Include="res\shaders\ShadowPointSpot.shader" />
+    <None Include="res\shaders\ShadowDir.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Renderer.h">

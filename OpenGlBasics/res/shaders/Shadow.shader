@@ -91,13 +91,14 @@ uniform bool u_Gamma;
 uniform bool u_Att;
 uniform sampler2D u_ShadowMap;
 uniform samplerCube u_ShadowCubeMap;
+uniform float u_FarPlane;
 
 //Function Prototypes
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 float CalcDirShadow(vec4 lightSpace, vec3 lightDir);
-float CalcPointSpotShadow(vec4 lightSpace, vec3 lightDir);
+float CalcPointSpotShadow(vec3 fragPos, vec3 lightPos);
 
 void main()
 {
@@ -182,7 +183,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 	}
 
 	//Shadow Calculation
-	float shadow = CalcPointSpotShadow(v_LightSpace, lightDir);
+	float shadow = CalcPointSpotShadow(v_FragPos, light.position);
 
 	return (ambient + (diffuse + specular) * (1.0 - shadow)) * attenuation;
 }
@@ -220,9 +221,9 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 	}
 
 	//Shadow Calculation
-	float shadow = CalcPointSpotShadow(v_LightSpace, light.direction);
+	float shadow = CalcPointSpotShadow(v_FragPos, light.position);
 
-	return (ambient + (diffuse + specular) * (1.0 - shadow)) * attenuation;
+	return (ambient + (diffuse + specular) * (1.0 - shadow) * 10) * attenuation;
 }
 
 float CalcDirShadow(vec4 lightSpace, vec3 lightDir)
@@ -254,31 +255,17 @@ float CalcDirShadow(vec4 lightSpace, vec3 lightDir)
 	return shadow;
 }
 
-float CalcPointSpotShadow(vec4 lightSpace, vec3 lightDir)
+float CalcPointSpotShadow(vec3 fragPos, vec3 lightPos)
 {
-	vec3 projCoords = lightSpace.xyz / lightSpace.w;
-	projCoords = projCoords * 0.5 + 0.5; //Change the range from [-1, 1] -> [0, 1]
+	vec3 fragToLight = fragPos - lightPos;
+	float closestDepth = texture(u_ShadowCubeMap, fragToLight).r; // Get Closest Depth
 
-	float closestDepth = texture(u_ShadowMap, projCoords.xy).r; // Get Closest Depth
+	closestDepth *= u_FarPlane;
 
-	float currentDepth = projCoords.z; //Get Current Depth
+	float currentDepth = length(fragToLight);
 
-	float bias = max(0.05 * (1.0 - dot(v_Normal, lightDir)), 0.005); //To eliminate artifacts from the depth buffer
-
-	float shadow = 0.0;
-	vec2 texelSize = 1.0 / textureSize(u_ShadowMap, 0);
-	for (int x = -1; x <= 1; ++x)
-	{
-		for (int y = -1; y <= 1; ++y)
-		{
-			float pcfDepth = texture(u_ShadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
-			shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
-		}
-	}
-	shadow /= 9.0;
-
-	if (projCoords.z > 1.0) //To deal with coordinates outside the far plane of	the light's orthographic frustum
-		shadow = 0.0;
+	float bias = 0.05;
+	float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
 
 	return shadow;
 }
