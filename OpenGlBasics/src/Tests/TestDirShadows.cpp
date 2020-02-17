@@ -1,4 +1,4 @@
-#include "TestShadows.h"
+#include "TestDirShadows.h"
 
 #include <iostream>
 
@@ -11,13 +11,12 @@
 
 namespace test {
 
-	TestShadows::TestShadows()
+	TestDirShadows::TestDirShadows()
 		: m_Proj(glm::perspective(glm::radians(45.0f), 960.0f / 540.0f, 0.1f, 100.0f)), m_View(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -3.0))), //glm::perspective(glm::radians(45.0f), 960.0f / 540.0f, 0.1f, 500.0f)
 		m_CubePos(0, 0, 0), m_FOV(45.0f), m_YawPitch(glm::vec2(0.0f, 0.0f)), m_Speed(2.5f),
-		m_CubeColor(glm::vec3(1.0f, 1.0f, 1.0f)), 
+		m_CubeColor(glm::vec3(1.0f, 1.0f, 1.0f)),
 		m_LampAmbient(glm::vec3(0.2f, 0.2f, 0.2f)), m_LampDiffuse(glm::vec3(0.5f, 0.5f, 0.5f)), m_LampSpecular(glm::vec3(1.0f, 1.0f, 1.0f)),
-		m_SpecularPower(5.0f),
-		m_AttenuationCheckbox(true)
+		m_SpecularPower(5.0f)
 	{
 
 		//Define Triangle
@@ -107,7 +106,7 @@ namespace test {
 		m_FrameVAO = std::make_unique<VertexArray>();
 
 		//create vertex buffer
-		m_VertexBuffer = std::make_unique<VertexBuffer>(positions, 8 * 4 * 6 * sizeof(float)); //3 values, 4, points, 6 faces
+		m_VertexBuffer = std::make_unique<VertexBuffer>(positions, 8 * 4 * 6 * sizeof(float)); //8 values, 4 points, 6 faces
 		m_FrameVertexBuffer = std::make_unique<VertexBuffer>(frameScreenPositions, 4 * 4 * 1 * sizeof(float));
 
 		//set vertex buffer to array
@@ -132,7 +131,6 @@ namespace test {
 		m_LampShader = std::make_unique<Shader>("res/shaders/Lamp.shader");
 
 		m_DirShader = std::make_unique<Shader>("res/shaders/ShadowDir.shader");
-		m_PointSpotShader = std::make_unique<Shader>("res/shaders/ShadowPointSpot.shader");
 
 		m_Shader->Bind();
 
@@ -140,29 +138,29 @@ namespace test {
 		m_TextureDiffuse = std::make_unique<Texture>("res/textures/Box_diffuse.png");
 		m_TextureSpecular = std::make_unique<Texture>("res/textures/Box_specular.png");
 
+		m_Shader->SetUniform1i("u_HasDirLight", true);
 		m_Shader->SetUniform1i("u_Gamma", false);
 		m_Shader->SetUniform1i("u_Material.diffuse", 0);
 		m_Shader->SetUniform1i("u_Material.specular", 1);
 		m_Shader->SetUniform1i("u_ShadowMap", 2);
 		m_Shader->SetUniform1i("u_ShadowCubeMap", 3);
 
-		//Set up FrameBuffer and CubeMap
-		m_FrameCubeMap = std::make_unique<CubeMap>();
-		m_FrameBuffer = std::make_unique<FrameBuffer>(2, m_FrameCubeMap->GetID());
+		//Set up FrameBuffer
+		m_FrameBuffer = std::make_unique<FrameBuffer>(1);
 
 		//Set Camera
 		m_Camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 
-	TestShadows::~TestShadows()
+	TestDirShadows::~TestDirShadows()
 	{
 	}
 
-	void TestShadows::OnUpdate(float deltaTime)
+	void TestDirShadows::OnUpdate(float deltaTime)
 	{
 	}
 
-	void TestShadows::OnRender()
+	void TestDirShadows::OnRender()
 	{
 		Renderer renderer;
 
@@ -171,58 +169,34 @@ namespace test {
 		GLCall(glViewport(0, 0, 1024, 1024));
 
 		//Configure Matricies and Shaders
-		glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), 1.0f, 1.0f, 25.0f);
+		float near_plane = 0.1f, far_plane = 100.0f;
+		glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
 
-		float near_plane = 1.0f;
-		float far_plane = 25.0f;
-		std::vector<glm::mat4> shadowTransforms;
-		shadowTransforms.push_back(shadowProj *
-			glm::lookAt(m_LampPos, m_LampPos + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
-		shadowTransforms.push_back(shadowProj *
-			glm::lookAt(m_LampPos, m_LampPos + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
-		shadowTransforms.push_back(shadowProj *
-			glm::lookAt(m_LampPos, m_LampPos + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)));
-		shadowTransforms.push_back(shadowProj *
-			glm::lookAt(m_LampPos, m_LampPos + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0)));
-		shadowTransforms.push_back(shadowProj *
-			glm::lookAt(m_LampPos, m_LampPos + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0)));
-		shadowTransforms.push_back(shadowProj *
-			glm::lookAt(m_LampPos, m_LampPos + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0)));
-
-		//glm::mat4 lightView = glm::lookAt(m_LampPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
-		//glm::mat4 lightSpaceMatrix = shadowProj * lightView;
+		glm::mat4 lightView = glm::lookAt(m_LampPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+		glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 
 		//Set FrameBuffer to the created one
 		m_FrameBuffer->Bind();
 		glClear(GL_DEPTH_BUFFER_BIT);
 
-		m_PointSpotShader->Bind();
-		m_PointSpotShader->SetUniform1f("u_FarPlane", far_plane);
-		m_PointSpotShader->SetUniform3f("u_LightPos", m_LampPos.x, m_LampPos.y, m_LampPos.z);
-
-		for (unsigned int i = 0; i < 6; ++i)
-			m_PointSpotShader->SetUniformMat4f("u_ShadowMatrices[" + std::to_string(i) + "]", shadowTransforms[i]);
+		m_DirShader->Bind();
 
 		//Render Scene using Shadow Depth Shader
 		for (unsigned int i = 0; i < 10; i++)
 		{
 			//create model matrix
 			glm::mat4 model = glm::mat4(1.0f);
-
-			model = glm::translate(model, m_CubePos + cubePositions[i]);
-			//model = glm::rotate(model, (float)glfwGetTime() * glm::radians(20.0f + i * 5.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+			model = glm::translate(model, m_CubePos + cubePositions[i] + glm::vec3(0.0, 0.0, -5.0));
 
 			////construt model view projection
-			//glm::mat4 mvp = lightSpaceMatrix * model;
-			//m_Shader->SetUniformMat4f("u_MVP", mvp);
-
-			m_PointSpotShader->SetUniformMat4f("u_Model", model);
+			glm::mat4 mvp = lightSpaceMatrix * model;
+			m_DirShader->SetUniformMat4f("u_MVP", mvp);
 
 			//draw texture
-			renderer.Draw(*m_VAO, *m_IndexBuffer, *m_PointSpotShader);
+			renderer.Draw(*m_VAO, *m_IndexBuffer, *m_DirShader);
 		}
 
-		m_PointSpotShader->UnBind();
+		m_DirShader->UnBind();
 		m_FrameBuffer->UnBind();
 
 
@@ -236,29 +210,20 @@ namespace test {
 		{
 			m_Shader->Bind();
 
-			m_Shader->SetUniform1i("u_Att", m_AttenuationCheckbox);
-
 			m_TextureDiffuse->Bind();
 			m_TextureSpecular->Bind(1);
-			m_FrameBuffer->BindCubeTexture(3);
+			m_FrameBuffer->BindTexture(2);
 
-			//m_Shader->SetUniformMat4f("u_LightSpaceMatrix", lightSpaceMatrix);
-
-			m_Shader->SetUniform1f("u_FarPlane", far_plane);
+			m_Shader->SetUniformMat4f("u_LightSpaceMatrix", lightSpaceMatrix);
 
 			m_Shader->SetUniform3f("u_ObjectColor", m_CubeColor.x, m_CubeColor.y, m_CubeColor.z);
 
 			m_Shader->SetUniform3f("u_ViewPos", m_Camera->CameraPosition().x, m_Camera->CameraPosition().y, m_Camera->CameraPosition().z);
 
-			m_Shader->SetUniform1i("u_NumPointLights", 1);
-
-			m_Shader->SetUniform3f("u_PointLight[0].position", m_LampPos.x, m_LampPos.y, m_LampPos.z);
-			m_Shader->SetUniform3f("u_PointLight[0].ambient", m_LampAmbient.x, m_LampAmbient.y, m_LampAmbient.z);
-			m_Shader->SetUniform3f("u_PointLight[0].diffuse", m_LampDiffuse.x, m_LampDiffuse.y, m_LampDiffuse.z);
-			m_Shader->SetUniform3f("u_PointLight[0].specular", m_LampSpecular.x, m_LampSpecular.y, m_LampSpecular.z);
-			m_Shader->SetUniform1f("u_PointLight[0].constant", 1.0f);
-			m_Shader->SetUniform1f("u_PointLight[0].linear", 0.09f);
-			m_Shader->SetUniform1f("u_PointLight[0].quadratic", 0.032f);
+			m_Shader->SetUniform3f("u_DirLight.direction", -m_LampPos.x, -m_LampPos.y, -m_LampPos.z);
+			m_Shader->SetUniform3f("u_DirLight.ambient", m_LampAmbient.x, m_LampAmbient.y, m_LampAmbient.z);
+			m_Shader->SetUniform3f("u_DirLight.diffuse", m_LampDiffuse.x, m_LampDiffuse.y, m_LampDiffuse.z);
+			m_Shader->SetUniform3f("u_DirLight.specular", m_LampSpecular.x, m_LampSpecular.y, m_LampSpecular.z);
 
 			m_Shader->SetUniform1f("u_Material.shininess", m_SpecularPower);
 
@@ -271,9 +236,7 @@ namespace test {
 				//create model matrix
 				glm::mat4 model = glm::mat4(1.0f);
 
-				model = glm::translate(model, m_CubePos + cubePositions[i]);
-				//model = glm::rotate(model, (float)glfwGetTime() * glm::radians(20.0f + i * 5.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-
+				model = glm::translate(model, m_CubePos + cubePositions[i] + glm::vec3(0.0, 0.0, -5.0));
 				m_View = m_Camera->viewMatrix;
 
 				//construt model view projection
@@ -290,36 +253,9 @@ namespace test {
 			m_TextureDiffuse->UnBind();
 			m_Shader->UnBind();
 		}
-
-		// Load the Lamp
-		{
-			m_LampShader->Bind();
-
-			//Move Camera
-			m_Camera->SetYawPitch(m_YawPitch.x - 90.0f, m_YawPitch.y);
-			m_Proj = glm::perspective(glm::radians(m_FOV), 960.0f / 540.0f, 0.1f, 100.0f);
-
-			//create model matrix
-			glm::mat4 model = glm::mat4(1.0f);
-
-			model = glm::translate(model, m_LampPos);
-			model = glm::scale(model, glm::vec3(0.2f));
-
-			m_View = m_Camera->viewMatrix;
-
-			//construt model view projection
-			glm::mat4 mvp = m_Proj * m_View * model;
-
-			m_LampShader->SetUniformMat4f("u_MVP", mvp);
-
-			//draw texture
-			renderer.Draw(*m_VAO, *m_IndexBuffer, *m_LampShader);
-
-			m_LampShader->UnBind();
-		}
 	}
 
-	void TestShadows::MouseCallback(GLFWwindow* window, double xpos, double ypos)
+	void TestDirShadows::MouseCallback(GLFWwindow* window, double xpos, double ypos)
 	{
 		if (firstMouse) // this bool variable is initially set to true
 		{
@@ -339,7 +275,7 @@ namespace test {
 		m_Camera->UpdateYawPitch(xOffset, yOffset);
 	}
 
-	void TestShadows::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+	void TestDirShadows::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 	{
 		if (m_FOV >= 1.0f && m_FOV <= 45.0f)
 			m_FOV -= yoffset;
@@ -351,7 +287,7 @@ namespace test {
 		m_Proj = glm::perspective(glm::radians(m_FOV), 960.0f / 540.0f, 0.1f, 100.0f);
 	}
 
-	void TestShadows::ProcessInput(GLFWwindow* window, float deltaTime)
+	void TestDirShadows::ProcessInput(GLFWwindow* window, float deltaTime)
 	{
 		float cameraSpeed = m_Speed * deltaTime; // adjust accordingly
 		if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
@@ -368,9 +304,9 @@ namespace test {
 			m_Camera->Right(cameraSpeed);
 	}
 
-	void TestShadows::OnImGuiRender()
+	void TestDirShadows::OnImGuiRender()
 	{
-		ImGui::Text("Welcome to the Shaodow Test Enviroment. Use WASD to move around and QE to zoom in and out so that you can see the shadows. There are more setting options below.");
+		ImGui::Text("Welcome to the Shadow Test Enviroment. Use WASD to move around and QE to zoom in and out so that you can see the shadows. There are more setting options below.");
 		if (ImGui::CollapsingHeader("Cube Options")) {
 			ImGui::SliderFloat3("Translate Cube", &m_CubePos.x, -5.0f, 5.0f);
 			ImGui::ColorEdit3("Cube Color", &m_CubeColor.x);
@@ -378,11 +314,10 @@ namespace test {
 		}
 
 		if (ImGui::CollapsingHeader("Lamp Options")) {
-			ImGui::SliderFloat3("Translate Lamp", &m_LampPos.x, -5.0f, 5.0f);
+			ImGui::SliderFloat3("Light Position", &m_LampPos.x, -1.0f, 1.0f);
 			ImGui::ColorEdit3("Light Ambient", &m_LampAmbient.x);
 			ImGui::ColorEdit3("Light Diffuse", &m_LampDiffuse.x);
 			ImGui::ColorEdit3("Light Specular", &m_LampSpecular.x);
-			ImGui::Checkbox("Attenuation", &m_AttenuationCheckbox);
 		}
 
 		if (ImGui::CollapsingHeader("Camera Options")) {

@@ -22,7 +22,9 @@
 #include "Tests/TestFrameBuffer.h"
 #include "Tests/TestCubeMaps.h"
 #include "Tests/TestAdvancedLighting.h"
-#include "Tests/TestShadows.h"
+#include "Tests/TestDirShadows.h"
+#include "Tests/TestPointSpotShadows.h"
+#include "Tests/TestNormalMaps.h"
 
 int main(void)
 {
@@ -79,8 +81,10 @@ int main(void)
 		testMenu->RegisterTest<test::TestFrameBuffer>("PostProcessing Effects");
 		testMenu->RegisterTest<test::TestCubeMaps>("Skybox and Reflective Materials");
 		testMenu->RegisterTest<test::TestAdvancedLighting>("Advanced Lighting");
-		testMenu->RegisterTest<test::TestShadows>("Shadows (work in progress)");
-
+		testMenu->RegisterTest<test::TestDirShadows>("Directional Shadows");
+		testMenu->RegisterTest<test::TestPointSpotShadows>("Point/Spot Shadows");
+		testMenu->RegisterTest<test::TestNormalMaps>("Normal Maps");
+		
 		//keep track of time
 		float deltaTime = 0.0f;
 		float lastFrame = 0.0f;

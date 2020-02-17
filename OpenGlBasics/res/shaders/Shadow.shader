@@ -148,7 +148,8 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
 	vec3 diffuse = (diff * vec3(texture(u_Material.diffuse, v_TexCoords))) * light.diffuse;
 
 	//Specular Calculation
-	float spec = pow(max(dot(normal, halfwayDir), 0.0), pow(2, u_Material.shininess));
+	vec3 reflectDir = reflect(-lightDir, normal);
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), pow(2, u_Material.shininess));
 	vec3 specular = (spec * vec3(texture(u_Material.specular, v_TexCoords))) * light.specular;
 
 	//Shadow Calculation
@@ -258,14 +259,32 @@ float CalcDirShadow(vec4 lightSpace, vec3 lightDir)
 float CalcPointSpotShadow(vec3 fragPos, vec3 lightPos)
 {
 	vec3 fragToLight = fragPos - lightPos;
-	float closestDepth = texture(u_ShadowCubeMap, fragToLight).r; // Get Closest Depth
-
-	closestDepth *= u_FarPlane;
-
 	float currentDepth = length(fragToLight);
 
-	float bias = 0.05;
-	float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+	vec3 sampleOffsetDirections[20] = vec3[]
+	(
+		vec3(1, 1, 1), vec3(1, -1, 1), vec3(-1, -1, 1), vec3(-1, 1, 1),
+		vec3(1, 1, -1), vec3(1, -1, -1), vec3(-1, -1, -1), vec3(-1, 1, -1),
+		vec3(1, 1, 0), vec3(1, -1, 0), vec3(-1, -1, 0), vec3(-1, 1, 0),
+		vec3(1, 0, 1), vec3(-1, 0, 1), vec3(1, 0, -1), vec3(-1, 0, -1),
+		vec3(0, 1, 1), vec3(0, -1, 1), vec3(0, -1, -1), vec3(0, 1, -1)
+	);
+
+	float shadow = 0.0;
+	float bias = 0.15;
+	float samples = 20;
+	float diskRadius = (0.5 + (currentDepth / u_FarPlane)) / 25.0;
+	for (int i = 0; i < samples; ++i)
+	{
+		float closestDepth = texture(u_ShadowCubeMap, fragToLight + sampleOffsetDirections[i] * diskRadius).r;
+		closestDepth *= u_FarPlane;
+
+		if(currentDepth - bias > closestDepth)
+			shadow += 1.0;
+	}
+
+
+	shadow /= float(samples);
 
 	return shadow;
 }

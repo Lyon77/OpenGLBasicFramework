@@ -12,10 +12,10 @@
 
 namespace test {
 
-	class TestShadows : public Test {
+	class TestPointSpotShadows : public Test {
 	public:
-		TestShadows();
-		~TestShadows();
+		TestPointSpotShadows();
+		~TestPointSpotShadows();
 
 		void OnUpdate(float deltaTime) override;
 		void OnRender() override;

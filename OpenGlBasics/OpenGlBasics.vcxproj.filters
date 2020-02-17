@@ -93,10 +93,16 @@
     <ClCompile Include="src\Tests\TestAdvancedLighting.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Tests\TestShadows.cpp">
+    <ClCompile Include="src\FrameBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\FrameBuffer.cpp">
+    <ClCompile Include="src\Tests\TestPointSpotShadows.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Tests\TestDirShadows.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Tests\TestNormalMaps.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -517,6 +523,7 @@
     <None Include="res\shaders\Shadow.shader" />
     <None Include="res\shaders\ShadowPointSpot.shader" />
     <None Include="res\shaders\ShadowDir.shader" />
+    <None Include="res\shaders\NormalMap.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Renderer.h">
@@ -1332,10 +1339,16 @@
     <ClInclude Include="src\Tests\TestAdvancedLighting.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Tests\TestShadows.h">
+    <ClInclude Include="src\FrameBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\FrameBuffer.h">
+    <ClInclude Include="src\Tests\TestPointSpotShadows.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Tests\TestDirShadows.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Tests\TestNormalMaps.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
