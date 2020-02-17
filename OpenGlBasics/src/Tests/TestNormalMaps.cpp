@@ -13,8 +13,7 @@ namespace test {
 
 	TestNormalMaps::TestNormalMaps()
 		: m_Proj(glm::perspective(glm::radians(45.0f), 960.0f / 540.0f, 0.1f, 100.0f)), m_View(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -3.0))), //glm::perspective(glm::radians(45.0f), 960.0f / 540.0f, 0.1f, 500.0f)
-		m_CubeRotation(90), m_FOV(45.0f), m_YawPitch(glm::vec2(0.0f, 0.0f)), m_Speed(2.5f),
-		m_CubeColor(glm::vec3(1.0f, 1.0f, 1.0f)),
+		m_CubeRotation(glm::vec3(0.0, 0.0, 0.0)), m_FOV(45.0f), m_YawPitch(glm::vec2(0.0f, 0.0f)), m_Speed(2.5f),
 		m_LampAmbient(glm::vec3(0.2f, 0.2f, 0.2f)), m_LampDiffuse(glm::vec3(0.5f, 0.5f, 0.5f)), m_LampSpecular(glm::vec3(1.0f, 1.0f, 1.0f)),
 		m_SpecularPower(5.0f)
 	{
@@ -49,11 +48,6 @@ namespace test {
 		tangent1.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
 		tangent1 = glm::normalize(tangent1);
 
-		bitangent1.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
-		bitangent1.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
-		bitangent1.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
-		bitangent1 = glm::normalize(bitangent1);
-
 		// triangle 2
 		edge1 = pos3 - pos1;
 		edge2 = pos4 - pos1;
@@ -67,20 +61,14 @@ namespace test {
 		tangent2.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
 		tangent2 = glm::normalize(tangent2);
 
-
-		bitangent2.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
-		bitangent2.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
-		bitangent2.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
-		bitangent2 = glm::normalize(bitangent2);
-
 		//Define Triangle
 		// FIX ME: try to get the positions to be from 960 by 540
 		float positions[] = {
 			//position              //normal          //texture
-			pos1.x, pos1.y, pos1.z, nm.x, nm.y, nm.z, uv1.x, uv1.y, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,
-			pos2.x, pos2.y, pos2.z, nm.x, nm.y, nm.z, uv2.x, uv2.y, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,
-			pos3.x, pos3.y, pos3.z, nm.x, nm.y, nm.z, uv3.x, uv3.y, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,
-			pos4.x, pos4.y, pos4.z, nm.x, nm.y, nm.z, uv4.x, uv4.y, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z
+			pos1.x, pos1.y, pos1.z, nm.x, nm.y, nm.z, uv1.x, uv1.y, tangent1.x, tangent1.y, tangent1.z,
+			pos2.x, pos2.y, pos2.z, nm.x, nm.y, nm.z, uv2.x, uv2.y, tangent1.x, tangent1.y, tangent1.z,
+			pos3.x, pos3.y, pos3.z, nm.x, nm.y, nm.z, uv3.x, uv3.y, tangent1.x, tangent1.y, tangent1.z,
+			pos4.x, pos4.y, pos4.z, nm.x, nm.y, nm.z, uv4.x, uv4.y, tangent2.x, tangent2.y, tangent2.z
 		};
 
 		unsigned int indicies[] = {
@@ -97,14 +85,13 @@ namespace test {
 
 		m_VAO = std::make_unique<VertexArray>();
 
-		m_VertexBuffer = std::make_unique<VertexBuffer>(positions, 14 * 4 * 1 * sizeof(float)); //14 values, 4 points, 1 faces
+		m_VertexBuffer = std::make_unique<VertexBuffer>(positions, 11 * 4 * 1 * sizeof(float)); //11 values, 4 points, 1 faces
 
 		//set vertex buffer to array
 		VertexBufferLayout layout;
 		layout.Push<float>(3);
 		layout.Push<float>(3);
 		layout.Push<float>(2);
-		layout.Push<float>(3);
 		layout.Push<float>(3);
 		m_VAO->AddBuffer(*m_VertexBuffer, layout);
 
@@ -159,7 +146,9 @@ namespace test {
 			m_Shader->SetUniform3f("u_PointLight.specular", m_LampSpecular.x, m_LampSpecular.y, m_LampSpecular.z);
 
 			glm::mat4 model = glm::mat4(1.0f);
-			model = glm::rotate(model, glm::radians(m_CubeRotation), glm::vec3(0.0f, 1.0f, 0.0f));
+			model = glm::rotate(model, glm::radians(m_CubeRotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+			model = glm::rotate(model, glm::radians(m_CubeRotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+			model = glm::rotate(model, glm::radians(m_CubeRotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
 			m_View = m_Camera->viewMatrix;
 
 			//construt model view projection
@@ -250,9 +239,8 @@ namespace test {
 	void TestNormalMaps::OnImGuiRender()
 	{
 		ImGui::Text("Welcome to the Normal Map Test Enviroment. Use WASD to move around and QE to zoom in and out so that you can see the shadows. There are more setting options below.");
-		if (ImGui::CollapsingHeader("Cube Options")) {
-			ImGui::SliderFloat("Rotate Cube", &m_CubeRotation, -180.0f, 180.0f);
-			ImGui::ColorEdit3("Cube Color", &m_CubeColor.x);
+		if (ImGui::CollapsingHeader("Plane Options")) {
+			ImGui::SliderFloat3("Rotate Plane", &m_CubeRotation.x, -180.0f, 180.0f);
 			ImGui::SliderFloat("Specular Power", &m_SpecularPower, 0.0f, 8.0f);
 		}
 

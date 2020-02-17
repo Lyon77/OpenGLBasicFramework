@@ -5,7 +5,6 @@ layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 normal;
 layout(location = 2) in vec2 texCoords;
 layout(location = 3) in vec3 tangent;
-layout(location = 4) in vec3 bitTangent;
 
 out vec3 v_FragPos;
 out vec2 v_TexCoords;
@@ -21,8 +20,10 @@ void main()
 	v_TexCoords = texCoords;
 
 	vec3 T = normalize(vec3(u_Model * vec4(tangent, 0.0)));
-	vec3 B = normalize(vec3(u_Model * vec4(bitTangent, 0.0)));
 	vec3 N = normalize(vec3(u_Model * vec4(normal, 0.0)));
+	T = normalize(T - dot(T, N) * N);
+	vec3 B = cross(N, T);
+
 	v_TBN = mat3(T, B, N);
 };
 

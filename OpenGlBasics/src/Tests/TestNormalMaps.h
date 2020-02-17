@@ -57,11 +57,9 @@ namespace test {
 
 		//location of the lamp light
 		glm::vec3 m_LampPos = glm::vec3(0.2f, 0.3f, 0.5f);
-		float m_CubeRotation;
+		glm::vec3 m_CubeRotation;
 
 		//Lighting Conditions
-		glm::vec3 m_CubeColor;
-
 		glm::vec3 m_LampAmbient;
 		glm::vec3 m_LampDiffuse;
 		glm::vec3 m_LampSpecular;
