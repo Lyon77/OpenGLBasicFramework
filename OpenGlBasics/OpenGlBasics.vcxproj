@@ -147,6 +147,7 @@
     <ClCompile Include="src\Tests\TestDepthStencilBlending.cpp" />
     <ClCompile Include="src\Tests\TestDirShadows.cpp" />
     <ClCompile Include="src\Tests\TestFrameBuffer.cpp" />
+    <ClCompile Include="src\Tests\TestHDRBloom.cpp" />
     <ClCompile Include="src\Tests\TestLighting.cpp" />
     <ClCompile Include="src\Tests\TestNormalMaps.cpp" />
     <ClCompile Include="src\Tests\TestPointSpotShadows.cpp" />
@@ -329,6 +330,7 @@
     <ClInclude Include="src\Tests\TestDepthStencilBlending.h" />
     <ClInclude Include="src\Tests\TestDirShadows.h" />
     <ClInclude Include="src\Tests\TestFrameBuffer.h" />
+    <ClInclude Include="src\Tests\TestHDRBloom.h" />
     <ClInclude Include="src\Tests\TestLighting.h" />
     <ClInclude Include="src\Tests\TestNormalMaps.h" />
     <ClInclude Include="src\Tests\TestPointSpotShadows.h" />

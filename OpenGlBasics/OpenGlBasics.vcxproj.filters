@@ -105,6 +105,9 @@
     <ClCompile Include="src\Tests\TestNormalMaps.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Tests\TestHDRBloom.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\Basic.shader" />
@@ -1349,6 +1352,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Tests\TestNormalMaps.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Tests\TestHDRBloom.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
