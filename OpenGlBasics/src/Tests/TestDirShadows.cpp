@@ -146,10 +146,11 @@ namespace test {
 		m_Shader->SetUniform1i("u_ShadowCubeMap", 3);
 
 		//Set up FrameBuffer
-		m_FrameBuffer = std::make_unique<FrameBuffer>(1);
+		m_FrameBuffer = std::make_unique<FrameBuffer>();
+		m_FrameBuffer->AddDepthAttachment();
 
 		//Set Camera
-		m_Camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		m_Camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 6.0f), glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 
 	TestDirShadows::~TestDirShadows()
@@ -186,7 +187,7 @@ namespace test {
 		{
 			//create model matrix
 			glm::mat4 model = glm::mat4(1.0f);
-			model = glm::translate(model, m_CubePos + cubePositions[i] + glm::vec3(0.0, 0.0, -5.0));
+			model = glm::translate(model, m_CubePos + cubePositions[i]);
 
 			////construt model view projection
 			glm::mat4 mvp = lightSpaceMatrix * model;
@@ -212,7 +213,7 @@ namespace test {
 
 			m_TextureDiffuse->Bind();
 			m_TextureSpecular->Bind(1);
-			m_FrameBuffer->BindTexture(2);
+			m_FrameBuffer->BindDepthTexture(2);
 
 			m_Shader->SetUniformMat4f("u_LightSpaceMatrix", lightSpaceMatrix);
 
@@ -236,7 +237,7 @@ namespace test {
 				//create model matrix
 				glm::mat4 model = glm::mat4(1.0f);
 
-				model = glm::translate(model, m_CubePos + cubePositions[i] + glm::vec3(0.0, 0.0, -5.0));
+				model = glm::translate(model, m_CubePos + cubePositions[i]);
 				m_View = m_Camera->viewMatrix;
 
 				//construt model view projection

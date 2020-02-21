@@ -120,7 +120,7 @@ namespace test {
 		m_Shader->SetUniform1i("u_Material.specular", 1);
 
 		//Set Camera
-		m_Camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		m_Camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 6.0f), glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 
 	TestAdvancedLighting::~TestAdvancedLighting()

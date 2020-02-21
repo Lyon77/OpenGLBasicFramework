@@ -149,7 +149,8 @@ namespace test {
 		m_TextureSpecular = std::make_unique<Texture>("res/textures/Box_specular.png");
 
 		//Set up FrameBuffer
-		m_FrameBuffer = std::make_unique<FrameBuffer>(0);
+		m_FrameBuffer = std::make_unique<FrameBuffer>();
+		m_FrameBuffer->AddColorAttachment();
 
 		//Set Camera
 		m_Camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -263,7 +264,7 @@ namespace test {
 			m_FrameShader->Bind();
 			m_FrameShader->SetUniform1i("u_Type", m_Type);
 
-			m_FrameBuffer->BindTexture();
+			m_FrameBuffer->BindColorTexture();
 
 			renderer.Draw(*m_FrameVAO, *m_FrameIndexBuffer, *m_FrameShader);
 		}

@@ -148,10 +148,11 @@ namespace test {
 
 		//Set up FrameBuffer and CubeMap
 		m_FrameCubeMap = std::make_unique<CubeMap>();
-		m_FrameBuffer = std::make_unique<FrameBuffer>(2, m_FrameCubeMap->GetID());
+		m_FrameBuffer = std::make_unique<FrameBuffer>();
+		m_FrameBuffer->AddCubeMapAttachment(m_FrameCubeMap->GetID());
 
 		//Set Camera
-		m_Camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		m_Camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 6.0f), glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 
 	TestPointSpotShadows::~TestPointSpotShadows()
