@@ -169,6 +169,7 @@
     <None Include="res\shaders\Advanced.shader" />
     <None Include="res\shaders\Basic.shader" />
     <None Include="res\shaders\BlinnPhong.shader" />
+    <None Include="res\shaders\HDR.shader" />
     <None Include="res\shaders\NormalMap.shader" />
     <None Include="res\shaders\Phong.shader" />
     <None Include="res\shaders\CubeMap.shader" />

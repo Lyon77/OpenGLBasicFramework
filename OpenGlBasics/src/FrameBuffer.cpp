@@ -54,6 +54,36 @@ void FrameBuffer::AddColorAttachment()
 	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
 
+void FrameBuffer::AddColorFPAttachment()
+{
+	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID));
+
+	//Do Texture Loading
+	GLCall(glGenTextures(1, &m_TextureColorBuffer));
+	GLCall(glBindTexture(GL_TEXTURE_2D, m_TextureColorBuffer));
+
+	GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, 960, 540, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL));
+
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+
+	GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_TextureColorBuffer, 0));
+
+	//Do Renderbuffer Object Loading
+	GLCall(glGenRenderbuffers(1, &m_RBO));
+	GLCall(glBindRenderbuffer(GL_RENDERBUFFER, m_RBO));
+
+	GLCall(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 960, 540));
+
+	GLCall(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_RBO));
+
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+
+	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+}
+
 void FrameBuffer::AddDepthAttachment()
 {
 	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID));

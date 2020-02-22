@@ -15,6 +15,7 @@ public:
 	~FrameBuffer();
 
 	void AddColorAttachment();
+	void AddColorFPAttachment();
 	void AddDepthAttachment();
 	void AddCubeMapAttachment(unsigned int cubeMap);
 

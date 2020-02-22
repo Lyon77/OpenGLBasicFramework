@@ -16,8 +16,10 @@ void main()
 
 layout(location = 0) out vec4 color;
 
+uniform vec4 u_Color = vec4(1.0);
+
 void main()
 {
 	//load texture
-	color = vec4(1.0);
+	color = u_Color;
 };

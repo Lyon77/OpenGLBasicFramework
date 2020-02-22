@@ -29,9 +29,8 @@ in vec3 v_FragPos;
 in vec3 v_Normal;
 in vec2 v_TexCoords;
 
-uniform vec3 u_ObjectColor;
-
 uniform vec3 u_ViewPos;
+uniform vec3 u_ObjectColor;
 
 struct DirLight {
 	vec3 direction;
