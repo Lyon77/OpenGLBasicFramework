@@ -388,7 +388,7 @@ namespace test {
 
 	void TestCubeMaps::OnImGuiRender()
 	{
-		ImGui::Text("Welcome to the Depth, Stencil, and Blending Test Enviroment.");
+		ImGui::TextWrapped("Welcome to the Depth, Stencil, and Blending Test Enviroment.");
 
 		ImGui::Checkbox("Refractive", &m_Refractive);
 
@@ -405,6 +405,6 @@ namespace test {
 		}
 
 		//displays framerate
-		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		ImGui::TextWrapped("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	}
 }

@@ -238,7 +238,7 @@ namespace test {
 
 	void TestNormalMaps::OnImGuiRender()
 	{
-		ImGui::Text("Welcome to the Normal Map Test Enviroment. Use WASD to move around and QE to zoom in and out so that you can see the shadows. There are more setting options below.");
+		ImGui::TextWrapped("Welcome to the Normal Map Test Enviroment. Use WASD to move around and QE to zoom in and out so that you can see the shadows. There are more setting options below.");
 		if (ImGui::CollapsingHeader("Plane Options")) {
 			ImGui::SliderFloat3("Rotate Plane", &m_CubeRotation.x, -180.0f, 180.0f);
 			ImGui::SliderFloat("Specular Power", &m_SpecularPower, 0.0f, 8.0f);
@@ -258,6 +258,6 @@ namespace test {
 		}
 
 		//displays framerate
-		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		ImGui::TextWrapped("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	}
 }

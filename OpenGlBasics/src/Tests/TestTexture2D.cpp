@@ -99,14 +99,14 @@ namespace test {
 	}
 	void TestTexture2D::OnImGuiRender()
 	{
-		ImGui::Text("Welcome to the Texture2D Test Enviroment. You can move the images around in this enviroment.");
+		ImGui::TextWrapped("Welcome to the Texture2D Test Enviroment. You can move the images around in this enviroment.");
 
 		//translates imageA
 		ImGui::SliderFloat3("Translation A", &m_TranslationA.x, 0.0f, 960.0f);
 		//translates imageB
 		ImGui::SliderFloat3("Translation B", &m_TranslationB.x, 0.0f, 960.0f);
 		//displays framerate
-		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		ImGui::TextWrapped("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	}
 	void TestTexture2D::ProcessInput(GLFWwindow* window, float deltaTime)
 	{

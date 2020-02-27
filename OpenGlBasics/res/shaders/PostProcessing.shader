@@ -8,7 +8,6 @@ out vec2 v_TexCoord;
 
 void main()
 {
-	//multiply position with projection matrix to account for window size
 	gl_Position = vec4(position.x, position.y, 0.0, 1.0);
 	v_TexCoord = texCoord;
 };

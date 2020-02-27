@@ -25,7 +25,8 @@
 #include "Tests/TestDirShadows.h"
 #include "Tests/TestPointSpotShadows.h"
 #include "Tests/TestNormalMaps.h"
-#include "Tests/TestHDRBloom.h"
+#include "Tests/TestHDR.h"
+#include "Tests/TestBloom.h"
 
 int main(void)
 {
@@ -85,7 +86,8 @@ int main(void)
 		testMenu->RegisterTest<test::TestDirShadows>("Directional Shadows");
 		testMenu->RegisterTest<test::TestPointSpotShadows>("Point/Spot Shadows");
 		testMenu->RegisterTest<test::TestNormalMaps>("Normal Maps");
-		testMenu->RegisterTest<test::TestHDRBloom>("HDR and Bloom with Multiple Lights (Work in Progress)");
+		testMenu->RegisterTest<test::TestHDR>("HDR (Work in Progress)");
+		testMenu->RegisterTest<test::TestBloom>("Bloom (Work in Progress)");
 		
 		//keep track of time
 		float deltaTime = 0.0f;

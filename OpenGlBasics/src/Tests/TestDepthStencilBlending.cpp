@@ -414,7 +414,7 @@ namespace test {
 
 	void TestDepthStencilBlending::OnImGuiRender()
 	{
-		ImGui::Text("Welcome to the Depth, Stencil, and Blending Test Enviroment.");
+		ImGui::TextWrapped("Welcome to the Depth, Stencil, and Blending Test Enviroment.");
 
 		ImGui::Checkbox("Depth Shader (darker = closer)", &m_DepthCheckbox);
 		ImGui::Checkbox("Stencil Shader", &m_StencilCheckbox);
@@ -439,6 +439,6 @@ namespace test {
 		}
 
 		//displays framerate
-		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		ImGui::TextWrapped("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	}
 }

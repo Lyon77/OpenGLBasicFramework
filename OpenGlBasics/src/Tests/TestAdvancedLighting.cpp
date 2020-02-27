@@ -276,7 +276,7 @@ namespace test {
 
 	void TestAdvancedLighting::OnImGuiRender()
 	{
-		ImGui::Text("Welcome to the Advanced Lighting Test Enviroment. This uses Blinn-Phong lighting. Use WASD to move around and QE to zoom in and out. There are more setting options below.");
+		ImGui::TextWrapped("Welcome to the Advanced Lighting Test Enviroment. This uses Blinn-Phong lighting. Use WASD to move around and QE to zoom in and out. There are more setting options below.");
 		if (ImGui::CollapsingHeader("Cube Options")) {
 			ImGui::SliderFloat3("Translate Cube", &m_CubePos.x, -5.0f, 5.0f);
 			ImGui::ColorEdit3("Cube Color", &m_CubeColor.x);
@@ -298,6 +298,6 @@ namespace test {
 		}
 
 		//displays framerate
-		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		ImGui::TextWrapped("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	}
 }

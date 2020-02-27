@@ -21,11 +21,19 @@ out vec4 color;
 in vec2 v_TexCoord;
 
 uniform sampler2D u_Texture;
+uniform sampler2D u_Texture2;
 uniform float u_Exposure;
+uniform bool u_Blend = false;
 
 void main()
 {
 	vec3 hdrColor = texture(u_Texture, v_TexCoord).rgb;
+
+	if (u_Blend)
+	{
+		vec3 bloomColor = texture(u_Texture2, v_TexCoord).rgb;
+		hdrColor += bloomColor;
+	}
 
 	// reinhard tone mapping
 	vec3 mapped = vec3(1.0) - exp(-hdrColor * u_Exposure);

@@ -11,10 +11,10 @@
 
 namespace test {
 
-	class TestHDRBloom : public Test {
+	class TestHDR : public Test {
 	public:
-		TestHDRBloom();
-		~TestHDRBloom();
+		TestHDR();
+		~TestHDR();
 
 		void OnUpdate(float deltaTime) override;
 		void OnRender() override;

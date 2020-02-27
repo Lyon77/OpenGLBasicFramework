@@ -105,7 +105,10 @@
     <ClCompile Include="src\Tests\TestNormalMaps.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Tests\TestHDRBloom.cpp">
+    <ClCompile Include="src\Tests\TestHDR.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Tests\TestBloom.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -528,6 +531,8 @@
     <None Include="res\shaders\ShadowDir.shader" />
     <None Include="res\shaders\NormalMap.shader" />
     <None Include="res\shaders\HDR.shader" />
+    <None Include="res\shaders\BrightColor.shader" />
+    <None Include="res\shaders\GaussianBlur.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Renderer.h">
@@ -1355,7 +1360,10 @@
     <ClInclude Include="src\Tests\TestNormalMaps.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Tests\TestHDRBloom.h">
+    <ClInclude Include="src\Tests\TestHDR.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Tests\TestBloom.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

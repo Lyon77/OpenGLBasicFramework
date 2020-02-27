@@ -1,4 +1,4 @@
-#include "TestHDRBloom.h"
+#include "TestBloom.h"
 
 #include <iostream>
 
@@ -11,13 +11,13 @@
 
 namespace test {
 
-	TestHDRBloom::TestHDRBloom()
+	TestBloom::TestBloom()
 		: m_Proj(glm::perspective(glm::radians(45.0f), 960.0f / 540.0f, 0.1f, 100.0f)), m_View(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -3.0))), //glm::perspective(glm::radians(45.0f), 960.0f / 540.0f, 0.1f, 500.0f)
-		m_LampPos(glm::vec3(0.0f, 0.0f, 0.1f)),
+		m_LampPos(glm::vec3(0.0f, 0.0f, -2.0f)),
 		m_CubePos(0, 0, 0), m_FOV(45.0f), m_YawPitch(glm::vec2(0.0f, 0.0f)), m_Speed(2.5f),
 		m_CubeColor(glm::vec3(1.0f, 1.0f, 1.0f)),
 		m_SpecularPower(5.0f),
-		m_AttenuationCheckbox(true),
+		m_AttenuationCheckbox(true), m_Bloom(true),
 		m_Exposure(1.0f)
 	{
 
@@ -25,15 +25,62 @@ namespace test {
 		// FIX ME: try to get the positions to be from 960 by 540
 		float positions[] = {
 			//position             //normal          	  //texture
-			-0.5f, -0.5f,  0.0f,   0.0f,  0.0f,  1.0f,	  0.0f, 0.0f,
-			 0.5f, -0.5f,  0.0f,   0.0f,  0.0f,  1.0f,	  1.0f, 0.0f,
-			 0.5f,  0.5f,  0.0f,   0.0f,  0.0f,  1.0f,	  1.0f, 1.0f,
-			-0.5f,  0.5f,  0.0f,   0.0f,  0.0f,  1.0f,	  0.0f, 1.0f
+
+			//Back
+			-0.5f, -0.5f, -0.5f,   0.0f,  0.0f, -1.0f,	  0.0f, 0.0f,
+			 0.5f, -0.5f, -0.5f,   0.0f,  0.0f, -1.0f,	  1.0f, 0.0f,
+			 0.5f,  0.5f, -0.5f,   0.0f,  0.0f, -1.0f,	  1.0f, 1.0f,
+			-0.5f,  0.5f, -0.5f,   0.0f,  0.0f, -1.0f,	  0.0f, 1.0f,
+
+			//Front
+			-0.5f, -0.5f,  0.5f,   0.0f,  0.0f,  1.0f,	  0.0f, 0.0f,
+			 0.5f, -0.5f,  0.5f,   0.0f,  0.0f,  1.0f,	  1.0f, 0.0f,
+			 0.5f,  0.5f,  0.5f,   0.0f,  0.0f,  1.0f,	  1.0f, 1.0f,
+			-0.5f,  0.5f,  0.5f,   0.0f,  0.0f,  1.0f,	  0.0f, 1.0f,
+
+			//Left
+			-0.5f, -0.5f,  0.5f,  -1.0f,  0.0f,  0.0f,	  0.0f, 0.0f,
+			-0.5f, -0.5f, -0.5f,  -1.0f,  0.0f,  0.0f,	  1.0f, 0.0f,
+			-0.5f,  0.5f, -0.5f,  -1.0f,  0.0f,  0.0f,	  1.0f, 1.0f,
+			-0.5f,  0.5f,  0.5f,  -1.0f,  0.0f,  0.0f,	  0.0f, 1.0f,
+
+			//Right
+			 0.5f, -0.5f,  0.5f,   1.0f,  0.0f,  0.0f,	  0.0f, 0.0f,
+			 0.5f, -0.5f, -0.5f,   1.0f,  0.0f,  0.0f,	  1.0f, 0.0f,
+			 0.5f,  0.5f, -0.5f,   1.0f,  0.0f,  0.0f,	  1.0f, 1.0f,
+			 0.5f,  0.5f,  0.5f,   1.0f,  0.0f,  0.0f,	  0.0f, 1.0f,
+
+			 //Top
+			  0.5f,  0.5f,  0.5f,   0.0f,  1.0f,  0.0f,	  0.0f, 0.0f,
+			  0.5f,  0.5f, -0.5f,   0.0f,  1.0f,  0.0f,	  1.0f, 0.0f,
+			 -0.5f,  0.5f, -0.5f,   0.0f,  1.0f,  0.0f,	  1.0f, 1.0f,
+			 -0.5f,  0.5f,  0.5f,   0.0f,  1.0f,  0.0f,	  0.0f, 1.0f,
+
+			 //Bottom			
+			  0.5f, -0.5f,  0.5f,   0.0f, -1.0f,  0.0f,	  0.0f, 0.0f,
+			  0.5f, -0.5f, -0.5f,   0.0f, -1.0f,  0.0f,	  1.0f, 0.0f,
+			 -0.5f, -0.5f, -0.5f,   0.0f, -1.0f,  0.0f,	  1.0f, 1.0f,
+			 -0.5f, -0.5f,  0.5f,   0.0f, -1.0f,  0.0f,	  0.0f, 1.0f,
 		};
 
 		unsigned int indicies[] = {
 			0, 2, 1,
-			2, 0, 3
+			2, 0, 3,
+
+			4, 5, 6,
+			6, 7, 4,
+
+			8, 10, 9,
+			10, 8, 11,
+
+			12, 13, 14,
+			14, 15, 12,
+
+			16, 17, 18,
+			18, 19, 16,
+
+			20, 22, 21,
+			22, 20, 23
 		};
 
 		float frameScreenPositions[] = {
@@ -62,7 +109,7 @@ namespace test {
 
 
 		//create vertex buffer
-		m_VertexBuffer = std::make_unique<VertexBuffer>(positions, 8 * 4 * 1 * sizeof(float)); //3 values, 4, points, 6 faces
+		m_VertexBuffer = std::make_unique<VertexBuffer>(positions, 8 * 4 * 6 * sizeof(float)); //3 values, 4, points, 6 faces
 		m_FrameVertexBuffer = std::make_unique<VertexBuffer>(frameScreenPositions, 4 * 4 * 1 * sizeof(float));
 
 
@@ -79,42 +126,64 @@ namespace test {
 		m_FrameVAO->AddBuffer(*m_FrameVertexBuffer, frameLayout);
 
 		//create index buffer
-		m_IndexBuffer = std::make_unique<IndexBuffer>(indicies, 6 * 1);
+		m_IndexBuffer = std::make_unique<IndexBuffer>(indicies, 6 * 6);
 		m_FrameIndexBuffer = std::make_unique<IndexBuffer>(frameScreenIndicies, 6 * 1);
 
 		//create Vertex and Fragment source
-		m_Shader = std::make_unique<Shader>("res/shaders/BlinnPhong.shader");
+		m_Shader = std::make_unique<Shader>("res/shaders/BrightColor.shader");
+		m_Shader->Bind();
+		m_Shader->SetUniform1i("u_Gamma", false);
+		m_Shader->SetUniform1i("u_Material.diffuse", 0);
+		m_Shader->SetUniform1i("u_Material.specular", 1);
+		m_Shader->UnBind();
 
 		m_LampShader = std::make_unique<Shader>("res/shaders/Lamp.shader");
-
-		m_Shader->Bind();
 
 		//Load Texture
 		m_TextureDiffuse = std::make_unique<Texture>("res/textures/Box_diffuse.png");
 		m_TextureSpecular = std::make_unique<Texture>("res/textures/Box_specular.png");
 
-		m_Shader->SetUniform1i("u_Gamma", false);
-		m_Shader->SetUniform1i("u_Material.diffuse", 0);
-		m_Shader->SetUniform1i("u_Material.specular", 1);
+		
 
 		//Set up FrameBuffer
 		m_FrameShader = std::make_unique<Shader>("res/shaders/HDR.shader");
+		m_FrameShader->Bind();
+		m_FrameShader->SetUniform1i("u_Texture", 0);
+		m_FrameShader->SetUniform1i("u_Texture2", 1);
+		m_FrameShader->UnBind();
+
+		m_BlurShader = std::make_unique<Shader>("res/shaders/GaussianBlur.shader");
+		m_BlurShader->Bind();
+		m_BlurShader->SetUniform1i("u_Texture", 0);
+		m_BlurShader->UnBind();
+
+
 		m_FrameBuffer = std::make_unique<FrameBuffer>();
-		m_FrameBuffer->AddColorFPAttachment();
+		m_FrameBuffer->AddColorAttachment(0);
+		m_FrameBuffer->AddColorAttachment(1);
+		m_FrameBuffer->AddRenderBufferAttachment();
+
+		m_VerticalFB = std::make_unique<FrameBuffer>();
+		m_VerticalFB->AddColorAttachment(0);
+		m_VerticalFB->AddRenderBufferAttachment();
+
+		m_HorizontalFB = std::make_unique<FrameBuffer>();
+		m_HorizontalFB->AddColorAttachment(0);
+		m_HorizontalFB->AddRenderBufferAttachment();
 
 		//Set Camera
 		m_Camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 4.0f), glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 
-	TestHDRBloom::~TestHDRBloom()
+	TestBloom::~TestBloom()
 	{
 	}
 
-	void TestHDRBloom::OnUpdate(float deltaTime)
+	void TestBloom::OnUpdate(float deltaTime)
 	{
 	}
 
-	void TestHDRBloom::OnRender()
+	void TestBloom::OnRender()
 	{
 		//Set FrameBuffer to the created one
 		m_FrameBuffer->Bind();
@@ -143,26 +212,26 @@ namespace test {
 
 			m_Shader->SetUniform1i("u_NumPointLights", 3);
 
-			m_Shader->SetUniform3f("u_PointLight[0].position", m_LampPos.x, m_LampPos.y, m_LampPos.z);
-			m_Shader->SetUniform3f("u_PointLight[0].ambient", 3.0f, 3.0f, 3.0f);
-			m_Shader->SetUniform3f("u_PointLight[0].diffuse", 3.0f, 3.0f, 3.0f);
-			m_Shader->SetUniform3f("u_PointLight[0].specular", 3.0f, 3.0f, 3.0f);
+			m_Shader->SetUniform3f("u_PointLight[0].position", m_LampPos.x, m_LampPos.y + 0.5, m_LampPos.z);
+			m_Shader->SetUniform3f("u_PointLight[0].ambient", 1.0f, 1.0f, 1.0f);
+			m_Shader->SetUniform3f("u_PointLight[0].diffuse", 1.0f, 1.0f, 1.0f);
+			m_Shader->SetUniform3f("u_PointLight[0].specular", 1.0f, 1.0f, 1.0f);
 			m_Shader->SetUniform1f("u_PointLight[0].constant", 1.0f);
 			m_Shader->SetUniform1f("u_PointLight[0].linear", 0.09f);
 			m_Shader->SetUniform1f("u_PointLight[0].quadratic", 0.032f);
 
-			m_Shader->SetUniform3f("u_PointLight[1].position", m_LampPos.x + 0.1f, m_LampPos.y -0.3f, m_LampPos.z + 3.0f);
-			m_Shader->SetUniform3f("u_PointLight[1].ambient", 0.0f, 0.0f, 0.1f);
-			m_Shader->SetUniform3f("u_PointLight[1].diffuse", 0.0f, 0.0f, 0.1f);
-			m_Shader->SetUniform3f("u_PointLight[1].specular", 0.0f, 0.0f, 0.1f);
+			m_Shader->SetUniform3f("u_PointLight[1].position", m_LampPos.x + 2.0f, m_LampPos.y - 2.0f, m_LampPos.z - 1.0f);
+			m_Shader->SetUniform3f("u_PointLight[1].ambient", 0.0f, 0.0f, 2.0f);
+			m_Shader->SetUniform3f("u_PointLight[1].diffuse", 0.0f, 0.0f, 2.0f);
+			m_Shader->SetUniform3f("u_PointLight[1].specular", 0.0f, 0.0f, 2.0f);
 			m_Shader->SetUniform1f("u_PointLight[1].constant", 1.0f);
 			m_Shader->SetUniform1f("u_PointLight[1].linear", 0.09f);
 			m_Shader->SetUniform1f("u_PointLight[1].quadratic", 0.032f);
 
-			m_Shader->SetUniform3f("u_PointLight[2].position", m_LampPos.x - 0.3f, m_LampPos.y - 0.1f, m_LampPos.z + 3.0f);
-			m_Shader->SetUniform3f("u_PointLight[2].ambient", 0.1f, 0.0f, 0.0f);
-			m_Shader->SetUniform3f("u_PointLight[2].diffuse", 0.1f, 0.0f, 0.0f);
-			m_Shader->SetUniform3f("u_PointLight[2].specular", 0.1f, 0.0f, 0.0f);
+			m_Shader->SetUniform3f("u_PointLight[2].position", m_LampPos.x - 2.0f, m_LampPos.y + 1.0f, m_LampPos.z - 2.0f);
+			m_Shader->SetUniform3f("u_PointLight[2].ambient", 4.0f, 0.0f, 0.0f);
+			m_Shader->SetUniform3f("u_PointLight[2].diffuse", 4.0f, 0.0f, 0.0f);
+			m_Shader->SetUniform3f("u_PointLight[2].specular", 4.0f, 0.0f, 0.0f);
 			m_Shader->SetUniform1f("u_PointLight[2].constant", 1.0f);
 			m_Shader->SetUniform1f("u_PointLight[2].linear", 0.09f);
 			m_Shader->SetUniform1f("u_PointLight[2].quadratic", 0.032f);
@@ -173,14 +242,12 @@ namespace test {
 			m_Camera->SetYawPitch(m_YawPitch.x - 90.0f, m_YawPitch.y);
 			m_Proj = glm::perspective(glm::radians(m_FOV), 960.0f / 540.0f, 0.1f, 100.0f);
 
-			for (unsigned int i = 0; i < 1 + 4 * 5; i++)
+			for (unsigned int i = 0; i < 10; i++)
 			{
 				//create model matrix
 				glm::mat4 model = glm::mat4(1.0f);
 
 				model = glm::translate(model, m_CubePos + cubePositions[i]);
-				model = glm::rotate(model, glm::radians(cubeRotations[i].x), glm::vec3(1.0, 0.0, 0.0));
-				model = glm::rotate(model, glm::radians(cubeRotations[i].y), glm::vec3(0.0, 1.0, 0.0));
 				m_View = m_Camera->viewMatrix;
 
 				//construt model view projection
@@ -210,7 +277,8 @@ namespace test {
 				glm::mat4 model = glm::mat4(1.0f);
 
 				model = glm::translate(model, m_LampPos);
-				model = glm::scale(model, glm::vec3(0.05f));
+				model = glm::translate(model, glm::vec3(0.0f, 0.5f, 0.0f));
+
 
 				m_View = m_Camera->viewMatrix;
 
@@ -218,7 +286,7 @@ namespace test {
 				glm::mat4 mvp = m_Proj * m_View * model;
 
 				m_LampShader->SetUniformMat4f("u_MVP", mvp);
-				m_LampShader->SetUniform4f("u_Color", 3.0f, 3.0f, 3.0f, 3.0f);
+				m_LampShader->SetUniform4f("u_Color", 2.0f, 2.0f, 2.0f, 1.0f);
 
 				//draw texture
 				renderer.Draw(*m_VAO, *m_IndexBuffer, *m_LampShader);
@@ -229,8 +297,7 @@ namespace test {
 				glm::mat4 model = glm::mat4(1.0f);
 
 				model = glm::translate(model, m_LampPos);
-				model = glm::translate(model, glm::vec3(0.1f, -0.3f, 3.0f));
-				model = glm::scale(model, glm::vec3(0.05f));
+				model = glm::translate(model, glm::vec3(3.0f, -2.0f, -1.0f));
 
 				m_View = m_Camera->viewMatrix;
 
@@ -238,7 +305,7 @@ namespace test {
 				glm::mat4 mvp = m_Proj * m_View * model;
 
 				m_LampShader->SetUniformMat4f("u_MVP", mvp);
-				m_LampShader->SetUniform4f("u_Color", 0.0f, 0.0f, 0.1f, 1.0f);
+				m_LampShader->SetUniform4f("u_Color", 0.0f, 0.0f, 15.0f, 1.0f);
 
 
 				//draw texture
@@ -250,8 +317,7 @@ namespace test {
 				glm::mat4 model = glm::mat4(1.0f);
 
 				model = glm::translate(model, m_LampPos);
-				model = glm::translate(model, glm::vec3(-0.3f, -0.1f, 3.0f));
-				model = glm::scale(model, glm::vec3(0.05f));
+				model = glm::translate(model, glm::vec3(-2.0f, 1.0f, 2.0f));
 
 				m_View = m_Camera->viewMatrix;
 
@@ -259,30 +325,64 @@ namespace test {
 				glm::mat4 mvp = m_Proj * m_View * model;
 
 				m_LampShader->SetUniformMat4f("u_MVP", mvp);
-				m_LampShader->SetUniform4f("u_Color", 0.1f, 0.0f, 0.0f, 1.0f);
+				m_LampShader->SetUniform4f("u_Color", 10.0f, 0.0f, 0.0f, 1.0f);
 
 				//draw texture
 				renderer.Draw(*m_VAO, *m_IndexBuffer, *m_LampShader);
 			}
 		}
 
-
 		m_FrameBuffer->UnBind();
+
+		bool first = true;
+		m_BlurShader->Bind();
+		for (unsigned int i = 0; i < 5; i++) 
+		{
+			m_HorizontalFB->Bind();
+			GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+			{
+				m_BlurShader->SetUniform1i("u_Horizontal", true);
+				
+				if (first) {
+					m_FrameBuffer->BindColorTexture(0, 1);
+					first = false;
+				}
+				else
+				{
+					m_VerticalFB->BindColorTexture();
+				}
+
+				renderer.Draw(*m_FrameVAO, *m_FrameIndexBuffer, *m_BlurShader);
+			}
+			m_HorizontalFB->UnBind();
+
+			m_VerticalFB->Bind();
+			GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+			{
+				m_BlurShader->SetUniform1i("u_Horizontal", false);
+				m_HorizontalFB->BindColorTexture();
+				renderer.Draw(*m_FrameVAO, *m_FrameIndexBuffer, *m_BlurShader);
+			}
+			m_VerticalFB->UnBind();
+		}
+
 
 		GLCall(glClearColor(1.0f, 1.0f, 1.0f, 1.0f));
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
 		{
 			m_FrameShader->Bind();
-			m_FrameBuffer->BindColorTexture();
+			m_FrameBuffer->BindColorTexture(0, 0);
+			m_VerticalFB->BindColorTexture(1);
 
 			m_FrameShader->SetUniform1f("u_Exposure", m_Exposure);
+			m_FrameShader->SetUniform1i("u_Blend", m_Bloom);
 
 			renderer.Draw(*m_FrameVAO, *m_FrameIndexBuffer, *m_FrameShader);
 		}
 	}
 
-	void TestHDRBloom::MouseCallback(GLFWwindow* window, double xpos, double ypos)
+	void TestBloom::MouseCallback(GLFWwindow* window, double xpos, double ypos)
 	{
 		if (firstMouse) // this bool variable is initially set to true
 		{
@@ -303,7 +403,7 @@ namespace test {
 		m_Camera->UpdateYawPitch(xOffset, yOffset);
 	}
 
-	void TestHDRBloom::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+	void TestBloom::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 	{
 		if (m_FOV >= 1.0f && m_FOV <= 45.0f)
 			m_FOV -= yoffset;
@@ -315,31 +415,46 @@ namespace test {
 		m_Proj = glm::perspective(glm::radians(m_FOV), 960.0f / 540.0f, 0.1f, 100.0f);
 	}
 
-	void TestHDRBloom::ProcessInput(GLFWwindow* window, float deltaTime)
+	void TestBloom::ProcessInput(GLFWwindow* window, float deltaTime)
 	{
 		float cameraSpeed = m_Speed * deltaTime; // adjust accordingly
-		if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS && m_Camera->CameraPosition().z > 1.0f)
+		if (glfwGetKey(window, GLFW_KEY_Q))
 			m_Camera->Forward(cameraSpeed);
-		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && m_Camera->CameraPosition().z < 5.0f)
+		if (glfwGetKey(window, GLFW_KEY_E))
 			m_Camera->BackWard(cameraSpeed);
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && m_Camera->CameraPosition().y < 0.25f)
+		if (glfwGetKey(window, GLFW_KEY_W))
 			m_Camera->Up(cameraSpeed);
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS && m_Camera->CameraPosition().y > -0.25f)
+		if (glfwGetKey(window, GLFW_KEY_S))
 			m_Camera->Down(cameraSpeed);
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && m_Camera->CameraPosition().x > -0.25f)
+		if (glfwGetKey(window, GLFW_KEY_A))
 			m_Camera->Left(cameraSpeed);
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS && m_Camera->CameraPosition().x < 0.25f)
+		if (glfwGetKey(window, GLFW_KEY_D))
 			m_Camera->Right(cameraSpeed);
 	}
 
-	void TestHDRBloom::OnImGuiRender()
+	void TestBloom::OnImGuiRender()
 	{
-		ImGui::Text("Welcome to the HDR and Bloom Test Enviroment. Use WASD to move around and QE to zoom in and out. There are more setting options below.");
+		ImGui::TextWrapped("Welcome to the Bloom Test Enviroment. This enviroment includes the HDR renderering seen in the HDR enviroment. Use WASD to move around and QE to zoom in and out. There are more setting options below.");
 
-		ImGui::SliderFloat("Translate Lamp", &m_LampPos.z, 0.1f, 3.0f);
-		ImGui::SliderFloat("Exposure", &m_Exposure, 0.1f, 5.0f);
+		ImGui::Checkbox("Bloom", &m_Bloom);
+
+		if (ImGui::CollapsingHeader("Cube Options")) {
+			ImGui::SliderFloat3("Translate Cube", &m_CubePos.x, -5.0f, 5.0f);
+			ImGui::ColorEdit3("Cube Color", &m_CubeColor.x);
+			ImGui::SliderFloat("Specular Power", &m_SpecularPower, 0.0f, 8.0f);
+		}
+
+		if (ImGui::CollapsingHeader("Lamp Options")) {
+			ImGui::SliderFloat3("Translate Lamp", &m_LampPos.x, -5.0f, 5.0f);
+		}
+
+		if (ImGui::CollapsingHeader("Camera Options")) {
+			ImGui::SliderFloat2("Yaw Pitch", &m_YawPitch.x, -89.0f, 89.0f);
+			ImGui::SliderFloat("FOV", &m_FOV, 1.0f, 89.0f);
+			ImGui::SliderFloat("Speed", &m_Speed, 0.5f, 5.0f);
+		}
 
 		//displays framerate
-		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		ImGui::TextWrapped("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	}
 }

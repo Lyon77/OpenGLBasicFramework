@@ -6,7 +6,7 @@ class FrameBuffer
 {
 private:
 	unsigned int m_RendererID;
-	unsigned int m_TextureColorBuffer;
+	unsigned int m_TextureColorBuffer[9] = {};
 	unsigned int m_TextureDepthBuffer;
 	unsigned int m_RBO;
 	unsigned int m_CubeID;
@@ -14,10 +14,11 @@ public:
 	FrameBuffer();
 	~FrameBuffer();
 
-	void AddColorAttachment();
-	void AddColorFPAttachment();
+	void AddColorAttachment(unsigned int index = 0);
+	void AddColorFPAttachment(unsigned int index = 0);
 	void AddDepthAttachment();
 	void AddCubeMapAttachment(unsigned int cubeMap);
+	void AddRenderBufferAttachment();
 
 	void Bind(unsigned int slot = 0) const;
 	void UnBind() const;
@@ -25,7 +26,7 @@ public:
 	void BindDepthTexture(unsigned int slot = 0) const;
 	void UnBindDepthTexture() const;
 
-	void BindColorTexture(unsigned int slot = 0) const;
+	void BindColorTexture(unsigned int slot = 0, unsigned int index = 0) const;
 	void UnBindColorTexture() const;
 
 	void BindCubeTexture(unsigned int slot = 0) const;

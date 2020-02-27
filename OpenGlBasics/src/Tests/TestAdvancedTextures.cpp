@@ -221,7 +221,7 @@ namespace test {
 
 	void TestAdvancedTextures::OnImGuiRender()
 	{
-		ImGui::Text("Welcome to the Advanced Test Enviroment. You can explore the enviroment using WASD to move and QE to zoom in and out.");
+		ImGui::TextWrapped("Welcome to the Advanced Test Enviroment. You can explore the enviroment using WASD to move and QE to zoom in and out.");
 
 		//translates imageA
 		ImGui::SliderFloat2("Translate Models", &m_TranslationA.x, -2.0f, 2.0f);
@@ -229,6 +229,6 @@ namespace test {
 		ImGui::SliderFloat("FOV", &m_FOV, 1.0f, 89.0f);
 		ImGui::SliderFloat("Speed", &m_Speed, 0.5f, 5.0f);
 		//displays framerate
-		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		ImGui::TextWrapped("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	}
 }
