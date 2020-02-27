@@ -86,8 +86,8 @@ int main(void)
 		testMenu->RegisterTest<test::TestDirShadows>("Directional Shadows");
 		testMenu->RegisterTest<test::TestPointSpotShadows>("Point/Spot Shadows");
 		testMenu->RegisterTest<test::TestNormalMaps>("Normal Maps");
-		testMenu->RegisterTest<test::TestHDR>("HDR (Work in Progress)");
-		testMenu->RegisterTest<test::TestBloom>("Bloom (Work in Progress)");
+		testMenu->RegisterTest<test::TestHDR>("HDR");
+		testMenu->RegisterTest<test::TestBloom>("Bloom");
 		
 		//keep track of time
 		float deltaTime = 0.0f;
