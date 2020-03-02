@@ -1,20 +1,19 @@
 #pragma once
-#include "Test.h"
+#include "Tests/Test.h"
 
 #include "VertexBuffer.h"
 #include "VertexBufferLayout.h"
 #include "Texture.h"
-#include "CubeMap.h"
 #include "Camera.h"
 
 #include <memory>
 
 namespace test {
 
-	class TestCubeMaps : public Test {
+	class TestDepthStencilBlending : public Test {
 	public:
-		TestCubeMaps();
-		~TestCubeMaps();
+		TestDepthStencilBlending();
+		~TestDepthStencilBlending();
 
 		void OnUpdate(float deltaTime) override;
 		void OnRender() override;
@@ -26,16 +25,13 @@ namespace test {
 		std::unique_ptr <VertexArray> m_VAO;
 		std::unique_ptr <VertexBuffer> m_VertexBuffer;
 		std::unique_ptr <IndexBuffer> m_IndexBuffer;
-
-		std::unique_ptr <VertexArray> m_SkyBoxVAO;
-		std::unique_ptr <VertexBuffer> m_SkyBoxVertexBuffer;
-		std::unique_ptr <IndexBuffer> m_SkyBoxIndexBuffer;
-
 		std::unique_ptr <Shader> m_Shader;
-		std::unique_ptr <Shader> m_RefractiveShader;
-		std::unique_ptr <Shader> m_SkyBoxShader;
+		std::unique_ptr <Shader> m_DepthShader;
+		std::unique_ptr <Shader> m_StencilShader;
+		std::unique_ptr <Shader> m_LampShader;
 
-		std::unique_ptr <CubeMap> m_SkyBoxTexture;
+		std::unique_ptr <Texture> m_TextureDiffuse;
+		std::unique_ptr <Texture> m_TextureSpecular;
 
 		glm::mat4 m_Proj, m_View;
 
@@ -49,6 +45,8 @@ namespace test {
 		double lastX = 960.0f / 2.0f, lastY = 540.0f / 2.0f;
 		bool firstMouse = true;
 
+		//location of the lamp light
+		glm::vec3 m_LampPos = glm::vec3(1.2f, 1.0f, 2.0f);
 		glm::vec3 m_CubePos;
 
 		glm::vec3 cubePositions[10] = {
@@ -64,8 +62,19 @@ namespace test {
 		   glm::vec3(-1.3f,  1.0f, -1.5f)
 		};
 
-		//Cube Refration
-		bool m_Refractive;
-		float m_Ratio;
+		//Lighting Conditions
+		glm::vec3 m_CubeColor;
+
+		glm::vec3 m_LampAmbient;
+		glm::vec3 m_LampDiffuse;
+		glm::vec3 m_LampSpecular;
+
+		float m_SpecularPower;
+
+		//Depth Conditions
+		bool m_DepthCheckbox;
+
+		//Stencil Conditions
+		bool m_StencilCheckbox;
 	};
 }

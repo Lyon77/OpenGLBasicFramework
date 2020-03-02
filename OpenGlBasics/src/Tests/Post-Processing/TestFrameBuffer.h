@@ -1,5 +1,5 @@
 #pragma once
-#include "Test.h"
+#include "Tests/Test.h"
 
 #include "VertexBuffer.h"
 #include "VertexBufferLayout.h"

@@ -1,5 +1,5 @@
 #pragma once
-#include "Test.h"
+#include "Tests/Test.h"
 
 #include "VertexBuffer.h"
 #include "VertexBufferLayout.h"
@@ -12,10 +12,10 @@
 
 namespace test {
 
-	class TestDirShadows : public Test {
+	class TestPointSpotShadows : public Test {
 	public:
-		TestDirShadows();
-		~TestDirShadows();
+		TestPointSpotShadows();
+		~TestPointSpotShadows();
 
 		void OnUpdate(float deltaTime) override;
 		void OnRender() override;
@@ -55,16 +55,16 @@ namespace test {
 		bool firstMouse = true;
 
 		//location of the lamp light
-		glm::vec3 m_LampPos = glm::vec3(0.0f, 1.0f, 0.0f);
+		glm::vec3 m_LampPos = glm::vec3(1.2f, 1.0f, 2.0f);
 		glm::vec3 m_CubePos;
 
 		glm::vec3 cubePositions[10] = {
 		   glm::vec3(0.0f,  0.0f,  0.0f),
-		   glm::vec3(2.0f,  0.0f,  0.0f),
-		   glm::vec3(0.0f,  2.0f,  0.0f),
-		   glm::vec3(0.0f,  0.0f,  -2.0f),
+		   glm::vec3(2.0f,  5.0f, -15.0f),
+		   glm::vec3(-1.5f, -2.2f, -2.5f),
+		   glm::vec3(-3.8f, -2.0f, -12.3f),
 		   glm::vec3(2.4f, -0.4f, -3.5f),
-		   glm::vec3(-1.7f,  3.0f, -3.5f),
+		   glm::vec3(-1.7f,  3.0f, -7.5f),
 		   glm::vec3(1.3f, -2.0f, -2.5f),
 		   glm::vec3(1.5f,  2.0f, -2.5f),
 		   glm::vec3(1.5f,  0.2f, -1.5f),
@@ -79,5 +79,7 @@ namespace test {
 		glm::vec3 m_LampSpecular;
 
 		float m_SpecularPower;
+
+		bool m_AttenuationCheckbox;
 	};
 }

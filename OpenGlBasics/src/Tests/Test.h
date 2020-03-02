@@ -27,14 +27,20 @@ namespace test {
 
 		void OnImGuiRender() override;
 
+		void MakeGroup(std::string name, int beg, int end) {
+			m_Groups.push_back(std::make_pair(name, std::make_pair(beg, end)));
+		}
+
 		template<typename T>
 		void RegisterTest(const std::string& name) {
 			std::cout << "Registering test " << name << std::endl;
 
 			m_Tests.push_back(std::make_pair(name, []() { return new T(); }));
 		}
+
 	private:
 		std::vector<std::pair<std::string, std::function<Test*()>>> m_Tests;
+		std::vector<std::pair<std::string, std::pair<int, int>>> m_Groups;
 		Test*&  m_CurrentTest;
 	};
 

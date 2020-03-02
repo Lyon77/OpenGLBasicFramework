@@ -1,21 +1,19 @@
 #pragma once
-#include "Test.h"
+#include "Tests/Test.h"
 
 #include "VertexBuffer.h"
 #include "VertexBufferLayout.h"
 #include "Texture.h"
-#include "FrameBuffer.h"
-#include "CubeMap.h"
 #include "Camera.h"
 
 #include <memory>
 
 namespace test {
 
-	class TestPointSpotShadows : public Test {
+	class TestLighting : public Test {
 	public:
-		TestPointSpotShadows();
-		~TestPointSpotShadows();
+		TestLighting();
+		~TestLighting();
 
 		void OnUpdate(float deltaTime) override;
 		void OnRender() override;
@@ -33,15 +31,6 @@ namespace test {
 		std::unique_ptr <Texture> m_TextureDiffuse;
 		std::unique_ptr <Texture> m_TextureSpecular;
 
-		//FrameBuffer
-		std::unique_ptr <VertexArray> m_FrameVAO;
-		std::unique_ptr <VertexBuffer> m_FrameVertexBuffer;
-		std::unique_ptr <IndexBuffer> m_FrameIndexBuffer;
-		std::unique_ptr <Shader> m_DirShader;
-		std::unique_ptr <Shader> m_PointSpotShader;
-		std::unique_ptr <FrameBuffer> m_FrameBuffer;
-		std::unique_ptr <CubeMap> m_FrameCubeMap;
-
 		glm::mat4 m_Proj, m_View;
 
 		//Camera Information
@@ -49,7 +38,7 @@ namespace test {
 		float m_Speed;
 		float m_FOV;
 		glm::vec2 m_YawPitch;
-
+		
 		//Mouse Calculations
 		float lastX = 960.0f / 2.0f, lastY = 540.0f / 2.0f;
 		bool firstMouse = true;
@@ -79,7 +68,5 @@ namespace test {
 		glm::vec3 m_LampSpecular;
 
 		float m_SpecularPower;
-
-		bool m_AttenuationCheckbox;
 	};
 }

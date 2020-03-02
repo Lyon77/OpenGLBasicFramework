@@ -14,24 +14,26 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 
-#include "Tests/TestClearColor.h"
-#include "Tests/TestTexture2D.h"
-#include "Tests/TestAdvancedTextures.h"
-#include "Tests/TestLighting.h"
-#include "Tests/TestDepthStencilBlending.h"
-#include "Tests/TestFrameBuffer.h"
-#include "Tests/TestCubeMaps.h"
-#include "Tests/TestAdvancedLighting.h"
-#include "Tests/TestDirShadows.h"
-#include "Tests/TestPointSpotShadows.h"
-#include "Tests/TestNormalMaps.h"
-#include "Tests/TestHDR.h"
-#include "Tests/TestBloom.h"
+#include "Tests/Basic/TestClearColor.h"
+#include "Tests/Basic/TestTexture2D.h"
+#include "Tests/Basic/TestAdvancedTextures.h"
+
+#include "Tests/Lighting and Shadows/TestLighting.h"
+#include "Tests/Lighting and Shadows/TestAdvancedLighting.h"
+#include "Tests/Lighting and Shadows/TestDirShadows.h"
+#include "Tests/Lighting and Shadows/TestPointSpotShadows.h"
+
+#include "Tests/Post-Processing/TestDepthStencilBlending.h"
+#include "Tests/Post-Processing/TestFrameBuffer.h"
+#include "Tests/Post-Processing/TestHDR.h"
+#include "Tests/Post-Processing/TestBloom.h"
+
+#include "Tests/Texturing Effects/TestCubeMaps.h"
+#include "Tests/Texturing Effects/TestNormalMaps.h"
+
 
 int main(void)
 {
-	//GLFWwindow* window;
-
 	/* Initialize the library */
 	if (!glfwInit())
 		return -1;
@@ -75,19 +77,30 @@ int main(void)
 		test::TestMenu* testMenu = new test::TestMenu(currentTest);
 		currentTest = testMenu;
 
+		testMenu->MakeGroup("Basic Features", 0, 2);
 		testMenu->RegisterTest<test::TestClearColor>("Clear Color");
 		testMenu->RegisterTest<test::TestTexture2D>("2D Texture");
 		testMenu->RegisterTest<test::TestAdvancedTextures>("Advanced Texture and Camera Control");
+
+		testMenu->MakeGroup("Lighting and Shadows", 3, 6);
 		testMenu->RegisterTest<test::TestLighting>("Lighting");
-		testMenu->RegisterTest<test::TestDepthStencilBlending>("Depth Testing, Stencil Testing, and Blending");
-		testMenu->RegisterTest<test::TestFrameBuffer>("PostProcessing Effects");
-		testMenu->RegisterTest<test::TestCubeMaps>("Skybox and Reflective Materials");
 		testMenu->RegisterTest<test::TestAdvancedLighting>("Advanced Lighting");
 		testMenu->RegisterTest<test::TestDirShadows>("Directional Shadows");
 		testMenu->RegisterTest<test::TestPointSpotShadows>("Point/Spot Shadows");
-		testMenu->RegisterTest<test::TestNormalMaps>("Normal Maps");
+
+		testMenu->MakeGroup("Post-Processing", 7, 10);
+		testMenu->RegisterTest<test::TestDepthStencilBlending>("Depth Testing, Stencil Testing, and Blending");
+		testMenu->RegisterTest<test::TestFrameBuffer>("Post-Processing Effects");
 		testMenu->RegisterTest<test::TestHDR>("HDR");
 		testMenu->RegisterTest<test::TestBloom>("Bloom");
+		
+		testMenu->MakeGroup("Texturing Effects", 11, 12);
+		testMenu->RegisterTest<test::TestCubeMaps>("Skybox and Reflective Materials");
+		testMenu->RegisterTest<test::TestNormalMaps>("Normal Maps");
+
+		testMenu->MakeGroup("Model Loading", 13, 13);
+
+		testMenu->MakeGroup("Example Enviroments", 14, 14);
 		
 		//keep track of time
 		float deltaTime = 0.0f;
