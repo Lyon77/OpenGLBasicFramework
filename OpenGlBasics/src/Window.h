@@ -7,14 +7,17 @@
 class Window
 {
 public:
-	Window(unsigned int width, unsigned int height);
-	~Window() = default;
+	static Window& GetInstance(unsigned int width = 960, unsigned int height = 540);
 
+	GLFWwindow* GetWindow() { return m_Window; }
 	unsigned int GetWidth() { return m_Width; }
-	unsigned int GetHeight() { return m_Height;  }
+	unsigned int GetHeight() { return m_Height; }
 
 private:
+	Window(unsigned int width, unsigned int height);
+	
 	unsigned int m_Width, m_Height;
+	GLFWwindow* m_Window;
 
 	int CreateWindow(unsigned int width, unsigned int height);
 };

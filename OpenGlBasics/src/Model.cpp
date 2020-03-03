@@ -8,7 +8,7 @@
 
 unsigned int TextureFromFile(const char* path, const std::string& directory, bool gamma = false);
 
-Model::Model(char* path)
+Model::Model(std::string path)
 {
 	loadModel(path);
 }
@@ -17,10 +17,12 @@ Model::~Model()
 {
 }
 
-void Model::Draw(Shader shader)
+void Model::Draw(Shader *shader)
 {
 	for (unsigned int i = 0; i < m_Meshes.size(); i++)
+	{
 		m_Meshes[i].Draw(shader);
+	}
 }
 
 void Model::loadModel(std::string path)
@@ -110,6 +112,12 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 
 		std::vector<MeshTexture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
 		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+
+		std::vector<MeshTexture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
+		textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
+
+		std::vector<MeshTexture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
+		textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 	}
 
 	return Mesh(vertices, indices, textures);
@@ -149,7 +157,7 @@ std::vector<MeshTexture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureT
 	}
 
 
-	return std::vector<MeshTexture>();
+	return textures;
 }
 
 // TODO: Change the Texture file to accomidate the Model class
@@ -166,7 +174,7 @@ unsigned int TextureFromFile(const char* path, const std::string& directory, boo
 	unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
 	if (data)
 	{
-		GLenum format;
+		GLenum format = GL_RGBA;
 		if (nrComponents == 1)
 			format = GL_RED;
 		else if (nrComponents == 3)

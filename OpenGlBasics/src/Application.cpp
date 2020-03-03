@@ -31,32 +31,12 @@
 #include "Tests/Texturing Effects/TestCubeMaps.h"
 #include "Tests/Texturing Effects/TestNormalMaps.h"
 
+#include "Tests/Model Loading/TestNanosuitModel.h"
+
 
 int main(void)
 {
-	/* Initialize the library */
-	if (!glfwInit())
-		return -1;
-
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-	/* Create a windowed mode window and its OpenGL context */
-	GLFWwindow* window = glfwCreateWindow(960, 540, "Hello World", NULL, NULL);
-	if (!window)
-	{
-		glfwTerminate();
-		return -1;
-	}
-
-	/* Make the window's context current */
-	glfwMakeContextCurrent(window);
-
-	glfwSwapInterval(1);
-
-	if (glewInit() != GLEW_OK)
-		std::cout << "Error!" << std::endl;
+	GLFWwindow* window = Window::GetInstance(960, 540).GetWindow();
 
 	std::cout << glGetString(GL_VERSION) << std::endl;
 
@@ -99,6 +79,7 @@ int main(void)
 		testMenu->RegisterTest<test::TestNormalMaps>("Normal Maps");
 
 		testMenu->MakeGroup("Model Loading", 13, 13);
+		testMenu->RegisterTest<test::TestNanosuitModel>("Nanosuit");
 
 		testMenu->MakeGroup("Example Enviroments", 14, 14);
 		

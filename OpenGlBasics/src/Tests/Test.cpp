@@ -11,7 +11,7 @@ namespace test {
 	}
 	void TestMenu::OnImGuiRender()
 	{
-		ImGui::TextWrapped("Welcome to the OpenGL Test Enviroment");
+		ImGui::TextWrapped("Welcome to the OpenGL Test Enviroment. Select a test below to see functionality");
 
 		for (auto& group : m_Groups)
 		{

@@ -120,6 +120,9 @@
     <ClCompile Include="src\Tests\Texturing Effects\TestNormalMaps.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Tests\Model Loading\TestNanosuitModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\Basic.shader" />
@@ -542,6 +545,7 @@
     <None Include="res\shaders\HDR.shader" />
     <None Include="res\shaders\BrightColor.shader" />
     <None Include="res\shaders\GaussianBlur.shader" />
+    <None Include="res\shaders\Model.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Renderer.h">
@@ -1379,6 +1383,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Tests\Texturing Effects\TestCubeMaps.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Tests\Model Loading\TestNanosuitModel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

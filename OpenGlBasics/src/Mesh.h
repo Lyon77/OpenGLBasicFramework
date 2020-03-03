@@ -41,7 +41,7 @@ public:
 	Mesh(std::vector<MeshVertex> vertices, std::vector<unsigned int> indices, std::vector<MeshTexture> textures);
 	//Mesh();
 
-	void Draw(Shader shader);
+	void Draw(Shader *shader);
 private:
 	std::unique_ptr <VertexArray> m_VAO;
 	std::unique_ptr <VertexBuffer> m_VertexBuffer;
