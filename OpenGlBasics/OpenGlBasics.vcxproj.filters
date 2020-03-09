@@ -123,6 +123,9 @@
     <ClCompile Include="src\Tests\Model Loading\TestNanosuitModel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Tests\Texturing Effects\TestPBR.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\Basic.shader" />
@@ -546,6 +549,7 @@
     <None Include="res\shaders\BrightColor.shader" />
     <None Include="res\shaders\GaussianBlur.shader" />
     <None Include="res\shaders\Model.shader" />
+    <None Include="res\shaders\PBR.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Renderer.h">
@@ -1386,6 +1390,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Tests\Model Loading\TestNanosuitModel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Tests\Texturing Effects\TestPBR.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -30,6 +30,7 @@
 
 #include "Tests/Texturing Effects/TestCubeMaps.h"
 #include "Tests/Texturing Effects/TestNormalMaps.h"
+#include "Tests/Texturing Effects/TestPBR.h"
 
 #include "Tests/Model Loading/TestNanosuitModel.h"
 
@@ -74,14 +75,15 @@ int main(void)
 		testMenu->RegisterTest<test::TestHDR>("HDR");
 		testMenu->RegisterTest<test::TestBloom>("Bloom");
 		
-		testMenu->MakeGroup("Texturing Effects", 11, 12);
+		testMenu->MakeGroup("Texturing Effects", 11, 13);
 		testMenu->RegisterTest<test::TestCubeMaps>("Skybox and Reflective Materials");
 		testMenu->RegisterTest<test::TestNormalMaps>("Normal Maps");
+		testMenu->RegisterTest<test::TestPBR>("PBR");
 
-		testMenu->MakeGroup("Model Loading", 13, 13);
+		testMenu->MakeGroup("Model Loading", 14, 14);
 		testMenu->RegisterTest<test::TestNanosuitModel>("Nanosuit");
 
-		testMenu->MakeGroup("Example Enviroments", 14, 14);
+		testMenu->MakeGroup("Example Enviroments", 15, 15);
 		
 		//keep track of time
 		float deltaTime = 0.0f;

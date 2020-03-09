@@ -27,4 +27,12 @@ void Renderer::Draw(const VertexArray & va, const IndexBuffer & ib, const Shader
 	GLCall(glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr));
 }
 
+void Renderer::DrawTriangleStrips(const VertexArray& va, const IndexBuffer& ib, const Shader& shader) const
+{
+	shader.Bind();
+	va.Bind();
+	ib.Bind();
+	GLCall(glDrawElements(GL_TRIANGLE_STRIP, ib.GetCount(), GL_UNSIGNED_INT, 0));
+}
+
 

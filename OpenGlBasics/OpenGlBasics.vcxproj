@@ -143,6 +143,7 @@
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\Tests\Model Loading\TestNanosuitModel.cpp" />
+    <ClCompile Include="src\Tests\Texturing Effects\TestPBR.cpp" />
     <ClCompile Include="src\Tests\Test.cpp" />
     <ClCompile Include="src\Tests\Lighting and Shadows\TestAdvancedLighting.cpp" />
     <ClCompile Include="src\Tests\Post-Processing\TestBloom.cpp" />
@@ -179,6 +180,7 @@
     <None Include="res\shaders\HDR.shader" />
     <None Include="res\shaders\Model.shader" />
     <None Include="res\shaders\NormalMap.shader" />
+    <None Include="res\shaders\PBR.shader" />
     <None Include="res\shaders\Phong.shader" />
     <None Include="res\shaders\CubeMap.shader" />
     <None Include="res\shaders\Depth.shader" />
@@ -335,6 +337,7 @@
     <ClInclude Include="src\Renderer.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\Tests\Model Loading\TestNanosuitModel.h" />
+    <ClInclude Include="src\Tests\Texturing Effects\TestPBR.h" />
     <ClInclude Include="src\Tests\Test.h" />
     <ClInclude Include="src\Tests\Lighting and Shadows\TestAdvancedLighting.h" />
     <ClInclude Include="src\Tests\Post-Processing\TestBloom.h" />
