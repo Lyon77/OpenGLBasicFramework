@@ -37,10 +37,34 @@ uniform float u_Metallic;
 uniform float u_Roughness;
 uniform float u_AO;
 
+uniform sampler2D u_AlbedoMap;
+uniform sampler2D u_MetallicMap;
+uniform sampler2D u_NormalMap;
+uniform sampler2D u_RoughnessMap;
+
 uniform vec3 u_LightPositions[4];
 uniform vec3 u_LightColors[4];
 
+uniform bool u_Textured;
+
 const float PI = 3.14159265359;
+
+vec3 getNormalFromNormalMap()
+{
+	vec3 tangentNormal = texture(u_NormalMap, v_TexCoord).xyz * 2.0 - 1.0;
+
+	vec3 Q1 = dFdx(v_WorldPos);
+	vec3 Q2 = dFdy(v_WorldPos);
+	vec2 st1 = dFdx(v_TexCoord);
+	vec2 st2 = dFdy(v_TexCoord);
+
+	vec3 N = normalize(v_Normal);
+	vec3 T = normalize(Q1 * st2.t - Q2 * st1.t);
+	vec3 B = -normalize(cross(N, T));
+	mat3 TBN = mat3(T, B, N);
+
+	return normalize(TBN * tangentNormal);
+}
 
 // the normal distribution function approximating the relative surface area of microfacets exactly aligned to the (halfway) vector h
 float DistributionGGX(vec3 N, vec3 H, float roughness)
@@ -85,13 +109,35 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 
 void main()
 {
-	vec3 N = normalize(v_Normal);                             // Normal vector
+	// Set material
+	vec3 albedo;
+	vec3 normal;
+	float metallic;
+	float roughness;
+
+	if (u_Textured)
+	{
+		albedo = pow(texture(u_AlbedoMap, v_TexCoord).rgb, vec3(2.2));
+		normal = getNormalFromNormalMap();
+		metallic = texture(u_MetallicMap, v_TexCoord).r;
+		roughness = texture(u_RoughnessMap, v_TexCoord).r;
+	}
+	else
+	{
+		albedo = u_Albedo;
+		normal = v_Normal;
+		metallic = u_Metallic;
+		roughness = u_Roughness;
+	}
+
+
+	vec3 N = normalize(normal);                             // Normal vector
 	vec3 V = normalize(u_CameraPos - v_WorldPos);             // View vector
 
 	// calculate reflectance at normal incidence
 	// if dia-electric use F0 of 0.04 and if it's a metal, use the albedo color as F0 
 	vec3 F0 = vec3(0.04);
-	F0 = mix(F0, u_Albedo, u_Metallic);
+	F0 = mix(F0, albedo, metallic);
 
 	// reflectance equation
 	vec3 Lo = vec3(0.0);
@@ -103,8 +149,8 @@ void main()
 		float attenuation = 1.0 / (distance * distance);
 		vec3 radiance = u_LightColors[i] * attenuation;
 
-		float NDF = DistributionGGX(N, H, u_Roughness);
-		float G = GeometrySmith(N, V, L, u_Roughness);
+		float NDF = DistributionGGX(N, H, roughness);
+		float G = GeometrySmith(N, V, L, roughness);
 		vec3 F = fresnelSchlick(clamp(dot(H, V), 0.0, 1.0), F0);
 
 		// The Cook-Torrance BRDF
@@ -116,15 +162,15 @@ void main()
 		vec3 kS = F;
 		vec3 kD = vec3(1.0) - kS;
 
-		kD *= 1.0 - u_Metallic;
+		kD *= 1.0 - metallic;
 
 		const float PI = 3.14159265359;
 
 		float NdotL = max(dot(N, L), 0.0);
-		Lo += (kD * u_Albedo / PI + specular) * radiance * NdotL;
+		Lo += (kD * albedo / PI + specular) * radiance * NdotL;
 	}
 
-	vec3 ambient = vec3(0.03) * u_Albedo * u_AO;
+	vec3 ambient = vec3(0.03) * albedo * u_AO;
 	vec3 finalColor = ambient + Lo;
 
 	// Gamma Correction

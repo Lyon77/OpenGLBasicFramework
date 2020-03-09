@@ -25,11 +25,19 @@ namespace test {
 		void MouseCallback(GLFWwindow* window, double xpos, double ypos) override;
 		void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) override;
 	private:
+		glm::vec3 AlbedoType();
+
 		std::unique_ptr <VertexArray> m_VAO;
 		std::unique_ptr <VertexBuffer> m_VertexBuffer;
 		std::unique_ptr <IndexBuffer> m_IndexBuffer;
 		std::unique_ptr <Shader> m_Shader;
 		std::unique_ptr <Shader> m_LampShader;
+
+		//Textures
+		std::unique_ptr <Texture> m_AlbedoTexture;
+		std::unique_ptr <Texture> m_MetallicTexture;
+		std::unique_ptr <Texture> m_NormalTexture;
+		std::unique_ptr <Texture> m_RoughnessTexture;
 
 		glm::mat4 m_Proj, m_View;
 
@@ -43,8 +51,12 @@ namespace test {
 		float lastX = 960.0f / 2.0f, lastY = 540.0f / 2.0f;
 		bool firstMouse = true;
 
+		bool m_TexturedSphere;
+		//Albedo Color
+		std::string m_Albedo;
+
 		//location of the lamp light
-		glm::vec3 m_LampPos = glm::vec3(0.2f, 0.3f, 0.5f);
+		glm::vec3 m_LampPos;
 
 	};
 }

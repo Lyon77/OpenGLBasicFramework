@@ -13,7 +13,9 @@ namespace test {
 
 	TestPBR::TestPBR()
 		: m_Proj(glm::perspective(glm::radians(45.0f), 960.0f / 540.0f, 0.1f, 100.0f)), m_View(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -3.0))), //glm::perspective(glm::radians(45.0f), 960.0f / 540.0f, 0.1f, 500.0f)
-		m_FOV(45.0f), m_YawPitch(glm::vec2(0.0f, 0.0f)), m_Speed(5.0f)
+		m_FOV(45.0f), m_YawPitch(glm::vec2(0.0f, 0.0f)), m_Speed(10.0f),
+		m_TexturedSphere(false), m_Albedo("Plastic"),
+		m_LampPos(glm::vec3(0.2f, 0.3f, 0.5f))
 	{
 		// -------------------Create Sphere------------------
 
@@ -22,8 +24,8 @@ namespace test {
 		std::vector<glm::vec3> normals;
 		std::vector<unsigned int> indices;
 
-		const unsigned int X_SEGMENTS = 128;
-		const unsigned int Y_SEGMENTS = 128;
+		const unsigned int X_SEGMENTS = 64;
+		const unsigned int Y_SEGMENTS = 64;
 		const float PI = 3.14159265359;
 
 		for (unsigned int y = 0; y <= Y_SEGMENTS; ++y)
@@ -105,8 +107,20 @@ namespace test {
 
 		//create Vertex and Fragment source
 		m_Shader = std::make_unique<Shader>("res/shaders/PBR.shader");
+		m_Shader->Bind();
+		m_Shader->SetUniform1i("u_AlbedoMap", 0);
+		m_Shader->SetUniform1i("u_MetallicMap", 1);
+		m_Shader->SetUniform1i("u_NormalMap", 2);
+		m_Shader->SetUniform1i("u_RoughnessMap", 3);
+		m_Shader->UnBind();
 
 		m_LampShader = std::make_unique<Shader>("res/shaders/Lamp.shader");
+
+		//Set Textures
+		m_AlbedoTexture = std::make_unique<Texture>("res/textures/rusted_iron/albedo.png");
+		m_MetallicTexture = std::make_unique<Texture>("res/textures/rusted_iron/metallic.png");
+		m_NormalTexture = std::make_unique<Texture>("res/textures/rusted_iron/normal.png");
+		m_RoughnessTexture = std::make_unique<Texture>("res/textures/rusted_iron/roughness.png");
 
 		//Set Camera
 		m_Camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 20.0f), glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -154,8 +168,16 @@ namespace test {
 
 			//Set Uniforms
 			m_Shader->SetUniform3f("u_CameraPos", m_Camera->CameraPosition().x, m_Camera->CameraPosition().y, m_Camera->CameraPosition().z);
-			m_Shader->SetUniform3f("u_Albedo", 0.5f, 0.0f, 0.0f);
 			m_Shader->SetUniform1f("u_AO", 1.0f);
+			m_Shader->SetUniform1i("u_Textured", m_TexturedSphere);
+
+			glm::vec3 type = AlbedoType();
+			m_Shader->SetUniform3f("u_Albedo", type.x, type.y, type.z);
+
+			m_AlbedoTexture->Bind(0);
+			m_MetallicTexture->Bind(1);
+			m_NormalTexture->Bind(2);
+			m_RoughnessTexture->Bind(3);
 
 			glm::mat4 model = glm::mat4(1.0f);
 			m_View = m_Camera->viewMatrix;
@@ -263,6 +285,28 @@ namespace test {
 		m_Proj = glm::perspective(glm::radians(m_FOV), 960.0f / 540.0f, 0.1f, 100.0f);
 	}
 
+	glm::vec3 TestPBR::AlbedoType()
+	{
+		glm::vec3 output = glm::vec3(1.0f);
+
+		if (m_Albedo == "Plastic")
+			output = glm::vec3(0.04f, 0.04f, 0.04f);
+		if (m_Albedo == "Diamond")
+			output = glm::vec3(0.17f, 0.17f, 0.17f);
+		if (m_Albedo == "Iron")
+			output = glm::vec3(0.56f, 0.57f, 0.58f);
+		if (m_Albedo == "Copper")
+			output = glm::vec3(0.95f, 0.64f, 0.54f);
+		if (m_Albedo == "Gold")
+			output = glm::vec3(1.00f, 0.71f, 0.29f);
+		if (m_Albedo == "Aluminum")
+			output = glm::vec3(0.91f, 0.92f, 0.92f);
+		if (m_Albedo == "Silver")
+			output = glm::vec3(0.95f, 0.93f, 0.88f);
+
+		return output;
+	}
+
 	void TestPBR::ProcessInput(GLFWwindow* window, float deltaTime)
 	{
 		float cameraSpeed = m_Speed * deltaTime; // adjust accordingly
@@ -282,11 +326,29 @@ namespace test {
 
 	void TestPBR::OnImGuiRender()
 	{
-		ImGui::TextWrapped("Welcome to the PBR Test Enviroment. The metallic value ranges from 0.0 to 1.0 from top to bottom and roughness from 0.0 to 1.0 left to right . The Use WASD to move around and QE to zoom in and out so that you can see the shadows. There are more setting options below.");
+		ImGui::TextWrapped("Welcome to the PBR Test Enviroment. The metallic value ranges from 0.0 to 1.0 from top to bottom and roughness from 0.0 to 1.0 left to right. The Rusted Iron texture has all the spheres be the same. The Use WASD to move around and QE to zoom in and out so that you can see the shadows. There are more setting options below.");
+
+		ImGui::Checkbox("Rusted Iron Texture", &m_TexturedSphere);
+
+		std::vector<std::string> items { "Plastic", "Diamond", "Iron", "Copper", "Gold", "Aluminum", "Silver" };
+		if (ImGui::BeginCombo("Albedo Color", m_Albedo.c_str())) // The second parameter is the label previewed before opening the combo.
+		{
+			for (int n = 0; n < items.size(); n++)
+			{
+				bool is_selected = (m_Albedo == items[n]);
+				if (ImGui::Selectable(items[n].c_str(), is_selected))
+				{
+					m_Albedo = items[n];
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();   // You may set the initial focus when opening the combo (scrolling + for keyboard navigation support)
+				}
+			}
+			ImGui::EndCombo();
+		}
 
 		ImGui::SliderFloat2("Yaw Pitch", &m_YawPitch.x, -89.0f, 89.0f);
 		ImGui::SliderFloat("FOV", &m_FOV, 1.0f, 89.0f);
-		ImGui::SliderFloat("Speed", &m_Speed, 2.0f, 10.0f);
+		ImGui::SliderFloat("Speed", &m_Speed, 5.0f, 20.0f);
 
 		//displays framerate
 		ImGui::TextWrapped("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);

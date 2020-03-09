@@ -240,7 +240,7 @@ namespace test {
 	{
 		ImGui::TextWrapped("Welcome to the Normal Map Test Enviroment. Use WASD to move around and QE to zoom in and out so that you can see the shadows. There are more setting options below.");
 		if (ImGui::CollapsingHeader("Plane Options")) {
-			ImGui::SliderFloat3("Rotate Plane", &m_CubeRotation.x, -180.0f, 180.0f);
+			ImGui::SliderFloat3("Rotate Plane", &m_CubeRotation.x, -45.0f, 45.0f);
 			ImGui::SliderFloat("Specular Power", &m_SpecularPower, 0.0f, 8.0f);
 		}
 
