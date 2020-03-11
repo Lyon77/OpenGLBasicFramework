@@ -161,7 +161,7 @@ namespace test {
 		m_FrameBuffer = std::make_unique<FrameBuffer>();
 		m_FrameBuffer->AddColorAttachment(0);
 		m_FrameBuffer->AddColorAttachment(1);
-		m_FrameBuffer->AddRenderBufferAttachment();
+		m_FrameBuffer->AddRenderBufferAttachment(2);
 
 		m_VerticalFB = std::make_unique<FrameBuffer>();
 		m_VerticalFB->AddColorAttachment(0);

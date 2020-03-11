@@ -30,14 +30,24 @@ namespace test {
 		std::unique_ptr <VertexArray> m_VAO;
 		std::unique_ptr <VertexBuffer> m_VertexBuffer;
 		std::unique_ptr <IndexBuffer> m_IndexBuffer;
+		std::unique_ptr <VertexArray> m_CubeVAO;
+		std::unique_ptr <VertexBuffer> m_CubeVertexBuffer;
+		std::unique_ptr <IndexBuffer> m_CubeIndexBuffer;
 		std::unique_ptr <Shader> m_Shader;
 		std::unique_ptr <Shader> m_LampShader;
+		std::unique_ptr <Shader> m_SkyboxShader;
+		std::unique_ptr <Shader> m_EquiretangularShader;
+
+		std::unique_ptr <CubeMap> m_CubeMap;
+
+		std::unique_ptr <FrameBuffer> m_FBO;
 
 		//Textures
 		std::unique_ptr <Texture> m_AlbedoTexture;
 		std::unique_ptr <Texture> m_MetallicTexture;
 		std::unique_ptr <Texture> m_NormalTexture;
 		std::unique_ptr <Texture> m_RoughnessTexture;
+		std::unique_ptr <Texture> m_EquirectangularTexture;
 
 		glm::mat4 m_Proj, m_View;
 

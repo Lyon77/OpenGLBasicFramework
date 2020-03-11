@@ -190,9 +190,6 @@ namespace test {
 		shadowTransforms.push_back(shadowProj *
 			glm::lookAt(m_LampPos, m_LampPos + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0)));
 
-		//glm::mat4 lightView = glm::lookAt(m_LampPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
-		//glm::mat4 lightSpaceMatrix = shadowProj * lightView;
-
 		//Set FrameBuffer to the created one
 		m_FrameBuffer->Bind();
 		glClear(GL_DEPTH_BUFFER_BIT);
@@ -211,11 +208,6 @@ namespace test {
 			glm::mat4 model = glm::mat4(1.0f);
 
 			model = glm::translate(model, m_CubePos + cubePositions[i]);
-			//model = glm::rotate(model, (float)glfwGetTime() * glm::radians(20.0f + i * 5.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-
-			////construt model view projection
-			//glm::mat4 mvp = lightSpaceMatrix * model;
-			//m_Shader->SetUniformMat4f("u_MVP", mvp);
 
 			m_PointSpotShader->SetUniformMat4f("u_Model", model);
 

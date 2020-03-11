@@ -103,7 +103,7 @@ void FrameBuffer::AddCubeMapAttachment(unsigned int cubeMap)
 	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
 
-void FrameBuffer::AddRenderBufferAttachment()
+void FrameBuffer::AddRenderBufferAttachment(unsigned int attachmentSize)
 {
 	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID));
 
@@ -115,13 +115,24 @@ void FrameBuffer::AddRenderBufferAttachment()
 
 	GLCall(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_RBO));
 
-	unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-	glDrawBuffers(2, attachments);
+	if (attachmentSize > 0) {
+		std::vector<unsigned int> attachmentVector;
+		for (int i = 0; i < attachmentSize; i++)
+			attachmentVector.push_back(GL_COLOR_ATTACHMENT0 + i);
+
+		unsigned int* attachments = &attachmentVector[0];
+		glDrawBuffers(attachmentSize, attachments);
+	}
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
 
 	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+}
+
+void FrameBuffer::RenderToCubeMapFace(unsigned int cubeMap, unsigned int index)
+{
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + index, cubeMap, 0);
 }
 
 void FrameBuffer::Bind(unsigned int slot) const

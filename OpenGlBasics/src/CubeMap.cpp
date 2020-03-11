@@ -42,9 +42,9 @@ CubeMap::CubeMap(const std::vector<std::string> textures_faces)
 
 }
 
-//Generates Depth CubeMap
-CubeMap::CubeMap()
-	: m_FilePaths(NULL), m_LocalBuffer(NULL), m_Width(1024), m_Height(1024), m_BPP(NULL)
+// Generates Depth CubeMap
+CubeMap::CubeMap(unsigned int type)
+	: m_FilePaths(NULL), m_LocalBuffer(NULL), m_Width(512), m_Height(512), m_BPP(NULL)
 {
 	//Seems like you need to flip when using png and not jpg
 	stbi_set_flip_vertically_on_load(false);
@@ -56,12 +56,30 @@ CubeMap::CubeMap()
 	//send to opengl
 	for (GLuint i = 0; i < 6; i++)
 	{
-		GLCall(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, m_Width, m_Height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL));
+		if (type == 1) 
+		{
+			//Color
+			GLCall(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, m_Width, m_Height, 0, GL_RGB, GL_FLOAT, NULL));
+		}
+		else 
+		{
+			//Depth
+			GLCall(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, m_Width, m_Height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL));
+		}
 	}
 
 	//texture parameters
-	GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
-	GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+	if (type == 1) 
+	{
+		GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+		GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+	}
+	else
+	{
+		GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+		GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+	}
+	
 	GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
 	GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
 	GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));

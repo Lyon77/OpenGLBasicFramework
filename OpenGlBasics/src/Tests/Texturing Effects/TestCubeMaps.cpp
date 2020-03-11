@@ -168,7 +168,7 @@ namespace test {
 		m_VAO = std::make_unique<VertexArray>();
 
 		//create vertex buffer
-		m_VertexBuffer = std::make_unique<VertexBuffer>(positions, 6 * 4 * 6 * sizeof(float)); //8 values, 4, points, 6 faces
+		m_VertexBuffer = std::make_unique<VertexBuffer>(positions, 3 * 4 * 6 * sizeof(float)); //8 values, 4, points, 6 faces
 
 		//set vertex buffer to array
 		VertexBufferLayout layout;
@@ -211,6 +211,7 @@ namespace test {
 		m_SkyBoxShader = std::make_unique<Shader>("res/shaders/CubeMap.shader");
 		m_SkyBoxShader->Bind();
 		m_SkyBoxShader->SetUniform1i("u_SkyBox", 0);
+		m_SkyBoxShader->SetUniform1i("u_GammaCorrect", 0);
 		m_SkyBoxShader->UnBind();
 
 		//Set Camera
@@ -323,8 +324,8 @@ namespace test {
 
 			m_View = glm::mat4(glm::mat3(m_Camera->viewMatrix));
 
-			glm::mat4 mvp = m_Proj * m_View;
-			m_SkyBoxShader->SetUniformMat4f("u_MVP", mvp);
+			glm::mat4 vp = m_Proj * m_View;
+			m_SkyBoxShader->SetUniformMat4f("u_VP", vp);
 
 			//draw
 			m_SkyBoxTexture->Bind();

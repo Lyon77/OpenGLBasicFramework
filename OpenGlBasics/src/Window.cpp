@@ -14,7 +14,7 @@ Window::Window(unsigned int width, unsigned int height)
 {
 	int success = CreateWindow(width, height);
 
-	if (success == 0)
+	if (success != 0)
 		std::cout << "Window Failed to Open" << std::endl;
 }
 

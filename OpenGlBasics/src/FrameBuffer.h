@@ -18,7 +18,9 @@ public:
 	void AddColorFPAttachment(unsigned int index = 0);
 	void AddDepthAttachment();
 	void AddCubeMapAttachment(unsigned int cubeMap);
-	void AddRenderBufferAttachment();
+	void AddRenderBufferAttachment(unsigned int attachmentSize = 1);
+
+	void RenderToCubeMapFace(unsigned int cubeMap, unsigned int index);
 
 	void Bind(unsigned int slot = 0) const;
 	void UnBind() const;

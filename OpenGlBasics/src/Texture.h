@@ -11,6 +11,7 @@ private:
 public:
 	Texture(const std::string& path);
 	Texture(const std::string& path, bool gammaCorrection);
+	Texture(const std::string& hdrImage, int temp);
 	~Texture();
 
 	void Bind(unsigned int slot = 0) const;

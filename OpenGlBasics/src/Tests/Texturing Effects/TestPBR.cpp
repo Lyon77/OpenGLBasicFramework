@@ -85,6 +85,8 @@ namespace test {
 
 		// --------------------------------------------------
 
+		GLCall(glDisable(GL_CULL_FACE));
+
 		//Depth Testing
 		GLCall(glEnable(GL_DEPTH_TEST));
 
@@ -115,12 +117,137 @@ namespace test {
 		m_Shader->UnBind();
 
 		m_LampShader = std::make_unique<Shader>("res/shaders/Lamp.shader");
+		m_SkyboxShader = std::make_unique<Shader>("res/shaders/CubeMap.shader");
+		m_SkyboxShader->Bind();
+		m_SkyboxShader->SetUniform1i("u_SkyBox", 0);
+		m_SkyboxShader->SetUniform1i("u_GammaCorrect", 0);
+		m_SkyboxShader->UnBind();
 
 		//Set Textures
 		m_AlbedoTexture = std::make_unique<Texture>("res/textures/rusted_iron/albedo.png");
 		m_MetallicTexture = std::make_unique<Texture>("res/textures/rusted_iron/metallic.png");
 		m_NormalTexture = std::make_unique<Texture>("res/textures/rusted_iron/normal.png");
 		m_RoughnessTexture = std::make_unique<Texture>("res/textures/rusted_iron/roughness.png");
+
+		// ----------------CubeMap Generation------------------
+		// setup framebuffer
+		m_FBO = std::make_unique<FrameBuffer>();
+		m_FBO->AddRenderBufferAttachment(0);
+
+		// load the HDR environment map
+		m_EquirectangularTexture = std::make_unique<Texture>("res/textures/equirectangular/Arches_E_PineTree.hdr", 0);
+
+		// setup cubemap to render to and attach to framebuffer
+		m_CubeMap = std::make_unique<CubeMap>(1);
+
+		// Initalize the Cube Here
+		float cubePositions[] = {
+			// positions 
+
+			//Back
+			-1.0f,  1.0f, -1.0f,
+			-1.0f, -1.0f, -1.0f,
+			 1.0f, -1.0f, -1.0f,
+			 1.0f,  1.0f, -1.0f,
+
+			 //Left
+			-1.0f, -1.0f,  1.0f,
+			-1.0f, -1.0f, -1.0f,
+			-1.0f,  1.0f, -1.0f,
+			-1.0f,  1.0f,  1.0f,
+
+			//Right
+			 1.0f, -1.0f, -1.0f,
+			 1.0f, -1.0f,  1.0f,
+			 1.0f,  1.0f,  1.0f,
+			 1.0f,  1.0f, -1.0f,
+
+			//Front
+			-1.0f, -1.0f,  1.0f,
+			-1.0f,  1.0f,  1.0f,
+			 1.0f,  1.0f,  1.0f,
+			 1.0f, -1.0f,  1.0f,
+
+			//Top
+			-1.0f,  1.0f, -1.0f,
+			 1.0f,  1.0f, -1.0f,
+			 1.0f,  1.0f,  1.0f,
+			-1.0f,  1.0f,  1.0f,
+
+			//Bottom
+			-1.0f, -1.0f, -1.0f,
+			-1.0f, -1.0f,  1.0f,
+			 1.0f, -1.0f,  1.0f,
+			 1.0f, -1.0f, -1.0f
+		};
+
+		unsigned int cubeIndices[] = {
+			0, 2, 1,
+			2, 0, 3,
+
+			4, 5, 6,
+			6, 7, 4,
+
+			8, 10, 9,
+			10, 8, 11,
+
+			12, 13, 14,
+			14, 15, 12,
+
+			16, 17, 18,
+			18, 19, 16,
+
+			20, 22, 21,
+			22, 20, 23
+		};
+
+		m_CubeVAO = std::make_unique<VertexArray>();
+
+		m_CubeVertexBuffer = std::make_unique<VertexBuffer>(cubePositions, 3 * 4 * 6 * sizeof(float)); //3 values, 4, points, 6 faces
+
+		VertexBufferLayout cubeLayout;
+		cubeLayout.Push<float>(3);
+		m_CubeVAO->AddBuffer(*m_CubeVertexBuffer, cubeLayout);
+
+		m_CubeIndexBuffer = std::make_unique<IndexBuffer>(cubeIndices, 6 * 6);
+
+		m_EquiretangularShader = std::make_unique<Shader>("res/shaders/UnitCube.shader");
+
+		// convert HDR equirectangular environment map to cubemap equivalent
+		m_FBO->Bind();
+		m_EquiretangularShader->Bind();
+		m_EquiretangularShader->SetUniform1i("u_EquirectangularMap", 0);
+		m_EquirectangularTexture->Bind();
+
+		glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
+		glm::mat4 captureViews[] =
+		{
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)),
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)),
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
+		};
+
+		Renderer renderer;
+		glViewport(0, 0, 512, 512);
+		for (unsigned int i = 0; i < 6; ++i)
+		{
+			glm::mat4 vp = captureProjection * captureViews[i];
+			m_EquiretangularShader->SetUniformMat4f("u_VP", vp);
+			//m_FBO->RenderToCubeMapFace(m_CubeMap->GetID(), i);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, m_CubeMap->GetID(), 0);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			renderer.Draw(*m_CubeVAO, *m_CubeIndexBuffer, *m_EquiretangularShader);
+		}
+
+		m_FBO->UnBind();
+		glViewport(0, 0, 960, 540);
+
+		// -----------------------------------------------------
+
 
 		//Set Camera
 		m_Camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 20.0f), glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -250,6 +377,26 @@ namespace test {
 			}
 
 			m_LampShader->UnBind();
+		}
+
+		// Draw Skybox
+		{
+			glDepthFunc(GL_LEQUAL);
+
+			m_SkyboxShader->Bind();
+
+			m_View = glm::mat4(glm::mat3(m_Camera->viewMatrix));
+			glm::mat4 vp = m_Proj * m_View;
+			m_SkyboxShader->SetUniformMat4f("u_VP", vp);
+
+			//Bind CubeMap and Render it
+			m_CubeMap->Bind();
+
+			renderer.Draw(*m_CubeVAO, *m_CubeIndexBuffer, *m_SkyboxShader);
+
+			m_SkyboxShader->UnBind();
+
+			glDepthFunc(GL_LESS);
 		}
 	}
 
