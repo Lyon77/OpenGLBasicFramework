@@ -103,7 +103,7 @@ void FrameBuffer::AddCubeMapAttachment(unsigned int cubeMap)
 	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
 
-void FrameBuffer::AddRenderBufferAttachment(unsigned int attachmentSize)
+void FrameBuffer::AddRenderBufferAttachment(unsigned int attachmentSize, int width, int height)
 {
 	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID));
 
@@ -111,7 +111,7 @@ void FrameBuffer::AddRenderBufferAttachment(unsigned int attachmentSize)
 	GLCall(glGenRenderbuffers(1, &m_RBO));
 	GLCall(glBindRenderbuffer(GL_RENDERBUFFER, m_RBO));
 
-	GLCall(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 960, 540));
+	GLCall(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height));
 
 	GLCall(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_RBO));
 
@@ -128,6 +128,12 @@ void FrameBuffer::AddRenderBufferAttachment(unsigned int attachmentSize)
 		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
 
 	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+}
+
+void FrameBuffer::ChangeRenderBufferStorage(int width, int height)
+{
+	GLCall(glBindRenderbuffer(GL_RENDERBUFFER, m_RBO));
+	GLCall(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height));
 }
 
 void FrameBuffer::RenderToCubeMapFace(unsigned int cubeMap, unsigned int index)

@@ -117,6 +117,7 @@ namespace test {
 		m_Shader->UnBind();
 
 		m_LampShader = std::make_unique<Shader>("res/shaders/Lamp.shader");
+
 		m_SkyboxShader = std::make_unique<Shader>("res/shaders/CubeMap.shader");
 		m_SkyboxShader->Bind();
 		m_SkyboxShader->SetUniform1i("u_SkyBox", 0);
@@ -132,13 +133,14 @@ namespace test {
 		// ----------------CubeMap Generation------------------
 		// setup framebuffer
 		m_FBO = std::make_unique<FrameBuffer>();
-		m_FBO->AddRenderBufferAttachment(0);
+		m_FBO->AddRenderBufferAttachment(0, 512, 512);
 
 		// load the HDR environment map
 		m_EquirectangularTexture = std::make_unique<Texture>("res/textures/equirectangular/Arches_E_PineTree.hdr", 0);
 
 		// setup cubemap to render to and attach to framebuffer
-		m_CubeMap = std::make_unique<CubeMap>(1);
+		m_CubeMap = std::make_unique<CubeMap>(1, 512, 512);
+		m_IrradianceMap = std::make_unique<CubeMap>(1, 32, 32);
 
 		// Initalize the Cube Here
 		float cubePositions[] = {
@@ -212,6 +214,7 @@ namespace test {
 		m_CubeIndexBuffer = std::make_unique<IndexBuffer>(cubeIndices, 6 * 6);
 
 		m_EquiretangularShader = std::make_unique<Shader>("res/shaders/UnitCube.shader");
+		m_IrradianceShader = std::make_unique<Shader>("res/shaders/Irradiance.shader");
 
 		// convert HDR equirectangular environment map to cubemap equivalent
 		m_FBO->Bind();
@@ -237,11 +240,29 @@ namespace test {
 			glm::mat4 vp = captureProjection * captureViews[i];
 			m_EquiretangularShader->SetUniformMat4f("u_VP", vp);
 			//m_FBO->RenderToCubeMapFace(m_CubeMap->GetID(), i);
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, m_CubeMap->GetID(), 0);
+			m_FBO->RenderToCubeMapFace(m_CubeMap->GetID(), i);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			renderer.Draw(*m_CubeVAO, *m_CubeIndexBuffer, *m_EquiretangularShader);
 		}
+
+		// Draw to Irradiance CubeMap
+		m_IrradianceShader->Bind();
+		m_IrradianceShader->SetUniform1i("u_EnviromentMap", 0);
+		m_CubeMap->Bind();
+
+		glViewport(0, 0, 32, 32);
+		for (unsigned int i = 0; i < 6; ++i)
+		{
+			glm::mat4 vp = captureProjection * captureViews[i];
+			m_IrradianceShader->SetUniformMat4f("u_VP", vp);
+			//m_FBO->RenderToCubeMapFace(m_CubeMap->GetID(), i);
+			m_FBO->RenderToCubeMapFace(m_IrradianceMap->GetID(), i);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			renderer.Draw(*m_CubeVAO, *m_CubeIndexBuffer, *m_IrradianceShader);
+		}
+
 
 		m_FBO->UnBind();
 		glViewport(0, 0, 960, 540);
@@ -390,7 +411,7 @@ namespace test {
 			m_SkyboxShader->SetUniformMat4f("u_VP", vp);
 
 			//Bind CubeMap and Render it
-			m_CubeMap->Bind();
+			m_IrradianceMap->Bind();
 
 			renderer.Draw(*m_CubeVAO, *m_CubeIndexBuffer, *m_SkyboxShader);
 

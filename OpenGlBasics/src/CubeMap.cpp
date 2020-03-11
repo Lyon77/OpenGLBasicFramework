@@ -43,8 +43,8 @@ CubeMap::CubeMap(const std::vector<std::string> textures_faces)
 }
 
 // Generates Depth CubeMap
-CubeMap::CubeMap(unsigned int type)
-	: m_FilePaths(NULL), m_LocalBuffer(NULL), m_Width(512), m_Height(512), m_BPP(NULL)
+CubeMap::CubeMap(unsigned int type, int width, int height)
+	: m_FilePaths(NULL), m_LocalBuffer(NULL), m_Width(width), m_Height(height), m_BPP(NULL)
 {
 	//Seems like you need to flip when using png and not jpg
 	stbi_set_flip_vertically_on_load(false);

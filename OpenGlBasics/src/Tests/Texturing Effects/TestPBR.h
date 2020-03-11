@@ -37,8 +37,10 @@ namespace test {
 		std::unique_ptr <Shader> m_LampShader;
 		std::unique_ptr <Shader> m_SkyboxShader;
 		std::unique_ptr <Shader> m_EquiretangularShader;
+		std::unique_ptr <Shader> m_IrradianceShader;
 
 		std::unique_ptr <CubeMap> m_CubeMap;
+		std::unique_ptr <CubeMap> m_IrradianceMap;
 
 		std::unique_ptr <FrameBuffer> m_FBO;
 

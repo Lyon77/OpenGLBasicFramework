@@ -12,7 +12,7 @@ private:
 	int m_Width, m_Height, m_BPP;
 public:
 	CubeMap(const std::vector<std::string> textures_faces);
-	CubeMap(unsigned int type = 0);
+	CubeMap(unsigned int type = 0, int width = 1024, int height = 1024);
 	~CubeMap();
 
 	void Bind(unsigned int slot = 0) const;
