@@ -42,6 +42,10 @@ uniform sampler2D u_MetallicMap;
 uniform sampler2D u_NormalMap;
 uniform sampler2D u_RoughnessMap;
 
+uniform samplerCube u_IrradianceMap;
+uniform samplerCube u_PrefilterMap;
+uniform sampler2D   u_BRDFLUT;
+
 uniform vec3 u_LightPositions[4];
 uniform vec3 u_LightColors[4];
 
@@ -102,9 +106,15 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 }
 
 // Describes the ratio of light that gets reflected over the light that gets refracted
-vec3 fresnelSchlick(float cosTheta, vec3 F0)
+vec3 FresnelSchlick(float cosTheta, vec3 F0)
 {
 	return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+}
+
+// Describes the ratio of light that gets reflected over the light that gets refracted including roughness
+vec3 FresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
+{
+	return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
 void main()
@@ -130,9 +140,9 @@ void main()
 		roughness = u_Roughness;
 	}
 
-
 	vec3 N = normalize(normal);                             // Normal vector
 	vec3 V = normalize(u_CameraPos - v_WorldPos);             // View vector
+	vec3 R = reflect(-V, N);
 
 	// calculate reflectance at normal incidence
 	// if dia-electric use F0 of 0.04 and if it's a metal, use the albedo color as F0 
@@ -151,7 +161,7 @@ void main()
 
 		float NDF = DistributionGGX(N, H, roughness);
 		float G = GeometrySmith(N, V, L, roughness);
-		vec3 F = fresnelSchlick(clamp(dot(H, V), 0.0, 1.0), F0);
+		vec3 F = FresnelSchlick(clamp(dot(H, V), 0.0, 1.0), F0);
 
 		// The Cook-Torrance BRDF
 		vec3 numerator = NDF * G * F;
@@ -160,8 +170,15 @@ void main()
 
 		// Calculate amount reflected (S) and refracted (D)
 		vec3 kS = F;
+
+		// for energy conservation, the diffuse and specular light can't
+	    // be above 1.0 (unless the surface emits light); to preserve this
+	    // relationship the diffuse component (kD) should equal 1.0 - kS.
 		vec3 kD = vec3(1.0) - kS;
 
+		// multiply kD by the inverse metalness such that only non-metals 
+		// have diffuse lighting, or a linear blend if partly metal (pure metals
+		// have no diffuse light).
 		kD *= 1.0 - metallic;
 
 		const float PI = 3.14159265359;
@@ -170,10 +187,26 @@ void main()
 		Lo += (kD * albedo / PI + specular) * radiance * NdotL;
 	}
 
-	vec3 ambient = vec3(0.03) * albedo * u_AO;
+	vec3 F = FresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
+
+	vec3 kS = F;
+	vec3 kD = 1.0 - kS;
+	kD *= 1.0 - metallic;
+
+	vec3 irradiance = texture(u_IrradianceMap, N).rgb;
+	vec3 diffuse = irradiance * albedo;
+
+	// sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
+	const float MAX_REFLECTION_LOD = 4.0;
+	vec3 prefilteredColor = textureLod(u_PrefilterMap, R, roughness * MAX_REFLECTION_LOD).rgb;
+	vec2 brdf = texture(u_BRDFLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
+	vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
+
+	vec3 ambient = (kD * diffuse + specular) * u_AO;
+
 	vec3 finalColor = ambient + Lo;
 
-	// Gamma Correction
+	// HDR tonemapping and Gamma Correction
 	finalColor = finalColor / (finalColor + vec3(1.0));
 	finalColor = pow(finalColor, vec3(1.0 / 2.2));
 	color = vec4(finalColor, 1.0);

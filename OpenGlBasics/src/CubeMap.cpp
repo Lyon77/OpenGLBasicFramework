@@ -42,7 +42,7 @@ CubeMap::CubeMap(const std::vector<std::string> textures_faces)
 
 }
 
-// Generates Depth CubeMap
+// Generates CubeMap based on type. Color, Depth, and MipMap
 CubeMap::CubeMap(unsigned int type, int width, int height)
 	: m_FilePaths(NULL), m_LocalBuffer(NULL), m_Width(width), m_Height(height), m_BPP(NULL)
 {
@@ -56,28 +56,43 @@ CubeMap::CubeMap(unsigned int type, int width, int height)
 	//send to opengl
 	for (GLuint i = 0; i < 6; i++)
 	{
-		if (type == 1) 
-		{
-			//Color
-			GLCall(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, m_Width, m_Height, 0, GL_RGB, GL_FLOAT, NULL));
-		}
-		else 
+		if (type == 0) 
 		{
 			//Depth
 			GLCall(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, m_Width, m_Height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL));
 		}
+		else if (type == 1)
+		{
+			//Color
+			GLCall(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, m_Width, m_Height, 0, GL_RGB, GL_FLOAT, NULL));
+		}
+		else if (type == 2)
+		{
+			//MipMap
+			GLCall(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, m_Width, m_Height, 0, GL_RGB, GL_FLOAT, nullptr));
+		}
+		else
+		{
+			std::cout << "Type not defined" << std::endl;
+		}
 	}
 
 	//texture parameters
-	if (type == 1) 
-	{
-		GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-		GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-	}
-	else
+	if (type == 0) 
 	{
 		GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
 		GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+	}
+	else if (type == 1)
+	{
+		GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+		GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+	} 
+	else if (type == 2)
+	{
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); 
+		glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 	}
 	
 	GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));

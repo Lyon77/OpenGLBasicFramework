@@ -14,6 +14,8 @@ public:
 	FrameBuffer();
 	~FrameBuffer();
 
+	void Add2DColorAttachment(unsigned int index = 0);
+
 	void AddColorAttachment(unsigned int index = 0);
 	void AddColorFPAttachment(unsigned int index = 0);
 	void AddDepthAttachment();

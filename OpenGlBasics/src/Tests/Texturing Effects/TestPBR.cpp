@@ -85,6 +85,9 @@ namespace test {
 
 		// --------------------------------------------------
 
+		// Properly filter across cubemap faces
+		GLCall(glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS));
+
 		GLCall(glDisable(GL_CULL_FACE));
 
 		//Depth Testing
@@ -114,6 +117,9 @@ namespace test {
 		m_Shader->SetUniform1i("u_MetallicMap", 1);
 		m_Shader->SetUniform1i("u_NormalMap", 2);
 		m_Shader->SetUniform1i("u_RoughnessMap", 3);
+		m_Shader->SetUniform1i("u_IrradianceMap", 4);
+		m_Shader->SetUniform1i("u_PrefilterMap", 5);
+		m_Shader->SetUniform1i("u_BRDFLUT", 6);
 		m_Shader->UnBind();
 
 		m_LampShader = std::make_unique<Shader>("res/shaders/Lamp.shader");
@@ -137,10 +143,6 @@ namespace test {
 
 		// load the HDR environment map
 		m_EquirectangularTexture = std::make_unique<Texture>("res/textures/equirectangular/Arches_E_PineTree.hdr", 0);
-
-		// setup cubemap to render to and attach to framebuffer
-		m_CubeMap = std::make_unique<CubeMap>(1, 512, 512);
-		m_IrradianceMap = std::make_unique<CubeMap>(1, 32, 32);
 
 		// Initalize the Cube Here
 		float cubePositions[] = {
@@ -215,12 +217,8 @@ namespace test {
 
 		m_EquiretangularShader = std::make_unique<Shader>("res/shaders/UnitCube.shader");
 		m_IrradianceShader = std::make_unique<Shader>("res/shaders/Irradiance.shader");
-
-		// convert HDR equirectangular environment map to cubemap equivalent
-		m_FBO->Bind();
-		m_EquiretangularShader->Bind();
-		m_EquiretangularShader->SetUniform1i("u_EquirectangularMap", 0);
-		m_EquirectangularTexture->Bind();
+		m_PrefilterShader = std::make_unique<Shader>("res/shaders/Prefilter.shader");
+		m_BRDFShader = std::make_unique<Shader>("res/shaders/BRDF.shader");
 
 		glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
 		glm::mat4 captureViews[] =
@@ -232,6 +230,14 @@ namespace test {
 			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
 			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
 		};
+
+		m_CubeMap = std::make_unique<CubeMap>(1, 512, 512);
+
+		// convert HDR equirectangular environment map to cubemap equivalent
+		m_FBO->Bind();
+		m_EquiretangularShader->Bind();
+		m_EquiretangularShader->SetUniform1i("u_EquirectangularMap", 0);
+		m_EquirectangularTexture->Bind();
 
 		Renderer renderer;
 		glViewport(0, 0, 512, 512);
@@ -245,8 +251,18 @@ namespace test {
 
 			renderer.Draw(*m_CubeVAO, *m_CubeIndexBuffer, *m_EquiretangularShader);
 		}
+		m_FBO->UnBind();
 
+		// then let OpenGL generate mipmaps from first mip face (combatting visible dots artifact)
+		glBindTexture(GL_TEXTURE_CUBE_MAP, m_CubeMap->GetID());
+		glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+
+		m_FBO->Bind();
 		// Draw to Irradiance CubeMap
+		m_IrradianceMap = std::make_unique<CubeMap>(1, 32, 32);
+
+		m_FBO->ChangeRenderBufferStorage(32, 32);
+
 		m_IrradianceShader->Bind();
 		m_IrradianceShader->SetUniform1i("u_EnviromentMap", 0);
 		m_CubeMap->Bind();
@@ -256,17 +272,82 @@ namespace test {
 		{
 			glm::mat4 vp = captureProjection * captureViews[i];
 			m_IrradianceShader->SetUniformMat4f("u_VP", vp);
-			//m_FBO->RenderToCubeMapFace(m_CubeMap->GetID(), i);
 			m_FBO->RenderToCubeMapFace(m_IrradianceMap->GetID(), i);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			renderer.Draw(*m_CubeVAO, *m_CubeIndexBuffer, *m_IrradianceShader);
 		}
 
+		// Create the Mipmap CubeMap
+		m_PrefilterMap = std::make_unique<CubeMap>(2, 128, 128);
+
+		m_PrefilterShader->Bind();
+		m_PrefilterShader->SetUniform1i("u_EnviromentMap", 0);
+		m_CubeMap->Bind();
+
+		unsigned int maxMipLevels = 5;
+		for (unsigned int mip = 0; mip < maxMipLevels; ++mip)
+		{
+			// reisze framebuffer according to mip-level size.
+			unsigned int mipWidth = 128 * std::pow(0.5, mip);
+			unsigned int mipHeight = 128 * std::pow(0.5, mip);
+			m_FBO->ChangeRenderBufferStorage(mipWidth, mipHeight);
+			glViewport(0, 0, mipWidth, mipHeight);
+
+			float roughness = (float)mip / (float)(maxMipLevels - 1);
+			m_PrefilterShader->SetUniform1f("u_Roughness", roughness);
+
+			for (unsigned int i = 0; i < 6; ++i)
+			{
+				glm::mat4 vp = captureProjection * captureViews[i];
+				m_PrefilterShader->SetUniformMat4f("u_VP", vp);
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, m_PrefilterMap->GetID(), mip);
+
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+				renderer.Draw(*m_CubeVAO, *m_CubeIndexBuffer, *m_PrefilterShader);
+			}
+		}
+
+		// Generate BRDF 2D LUT
+		m_FBO->Add2DColorAttachment();
+		m_FBO->Bind();
+		m_FBO->ChangeRenderBufferStorage(512, 512);
+
+
+		// Quad generation
+		float quadPositions[] = {
+			 -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+			  1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+			  1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+			 -1.0f,  1.0f, 0.0f, 0.0f, 1.0f
+		};
+
+		unsigned int quadIndices[] = {
+			0, 1, 2,
+			2, 3, 0
+		};
+
+		VertexArray quadVAO;
+
+		VertexBuffer quadVertexBuffer(quadPositions, 5 * 4 * sizeof(float)); //4 values, 4, points
+
+		VertexBufferLayout quadLayout;
+		quadLayout.Push<float>(3);
+		quadLayout.Push<float>(2);
+		quadVAO.AddBuffer(quadVertexBuffer, quadLayout);
+
+		IndexBuffer quadIndexBuffer(quadIndices, 6);
+
+		glViewport(0, 0, 512, 512);
+		m_BRDFShader->Bind();
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		renderer.Draw(quadVAO, quadIndexBuffer, *m_BRDFShader);
 
 		m_FBO->UnBind();
 		glViewport(0, 0, 960, 540);
-
 		// -----------------------------------------------------
 
 
@@ -326,6 +407,9 @@ namespace test {
 			m_MetallicTexture->Bind(1);
 			m_NormalTexture->Bind(2);
 			m_RoughnessTexture->Bind(3);
+			m_IrradianceMap->Bind(4);
+			m_PrefilterMap->Bind(5);
+			m_FBO->BindColorTexture(6, 0);
 
 			glm::mat4 model = glm::mat4(1.0f);
 			m_View = m_Camera->viewMatrix;
@@ -411,7 +495,7 @@ namespace test {
 			m_SkyboxShader->SetUniformMat4f("u_VP", vp);
 
 			//Bind CubeMap and Render it
-			m_IrradianceMap->Bind();
+			m_PrefilterMap->Bind();
 
 			renderer.Draw(*m_CubeVAO, *m_CubeIndexBuffer, *m_SkyboxShader);
 

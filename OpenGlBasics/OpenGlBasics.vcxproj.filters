@@ -552,6 +552,8 @@
     <None Include="res\shaders\PBR.shader" />
     <None Include="res\shaders\UnitCube.shader" />
     <None Include="res\shaders\Irradiance.shader" />
+    <None Include="res\shaders\Prefilter.shader" />
+    <None Include="res\shaders\BRDF.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Renderer.h">

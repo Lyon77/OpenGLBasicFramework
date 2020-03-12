@@ -175,6 +175,7 @@
     <None Include="res\shaders\Advanced.shader" />
     <None Include="res\shaders\Basic.shader" />
     <None Include="res\shaders\BlinnPhong.shader" />
+    <None Include="res\shaders\BRDF.shader" />
     <None Include="res\shaders\BrightColor.shader" />
     <None Include="res\shaders\GaussianBlur.shader" />
     <None Include="res\shaders\HDR.shader" />
@@ -187,6 +188,7 @@
     <None Include="res\shaders\Depth.shader" />
     <None Include="res\shaders\Lamp.shader" />
     <None Include="res\shaders\PostProcessing.shader" />
+    <None Include="res\shaders\Prefilter.shader" />
     <None Include="res\shaders\Reflective.shader" />
     <None Include="res\shaders\Refractive.shader" />
     <None Include="res\shaders\Shadow.shader" />

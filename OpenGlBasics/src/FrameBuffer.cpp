@@ -24,6 +24,26 @@ FrameBuffer::~FrameBuffer()
 	GLCall(glDeleteFramebuffers(1, &m_RendererID));
 }
 
+void FrameBuffer::Add2DColorAttachment(unsigned int index)
+{
+	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID));
+
+	//Do Texture Loading
+	GLCall(glGenTextures(1, &m_TextureColorBuffer[index]));
+	GLCall(glBindTexture(GL_TEXTURE_2D, m_TextureColorBuffer[index]));
+
+	GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, 512, 512, 0, GL_RG, GL_FLOAT, 0));
+
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+
+	GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_2D, m_TextureColorBuffer[index], 0));
+
+	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+}
+
 void FrameBuffer::AddColorAttachment(unsigned int index)
 {
 	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID));

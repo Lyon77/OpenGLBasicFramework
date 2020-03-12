@@ -38,9 +38,12 @@ namespace test {
 		std::unique_ptr <Shader> m_SkyboxShader;
 		std::unique_ptr <Shader> m_EquiretangularShader;
 		std::unique_ptr <Shader> m_IrradianceShader;
+		std::unique_ptr <Shader> m_PrefilterShader;
+		std::unique_ptr <Shader> m_BRDFShader;
 
 		std::unique_ptr <CubeMap> m_CubeMap;
 		std::unique_ptr <CubeMap> m_IrradianceMap;
+		std::unique_ptr <CubeMap> m_PrefilterMap;
 
 		std::unique_ptr <FrameBuffer> m_FBO;
 
@@ -69,6 +72,5 @@ namespace test {
 
 		//location of the lamp light
 		glm::vec3 m_LampPos;
-
 	};
 }
