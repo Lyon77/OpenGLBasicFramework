@@ -108,7 +108,4 @@ namespace test {
 		//displays framerate
 		ImGui::TextWrapped("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	}
-	void TestTexture2D::ProcessInput(GLFWwindow* window, float deltaTime)
-	{
-	}
 }

@@ -114,9 +114,6 @@
     <ClCompile Include="src\Tests\Post-Processing\TestDepthStencilBlending.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Tests\Texturing Effects\TestCubeMaps.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Tests\Texturing Effects\TestNormalMaps.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -124,6 +121,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Tests\Texturing Effects\TestPBR.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Tests\Texturing Effects\TestCubeMaps.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1390,13 +1390,13 @@
     <ClInclude Include="src\Tests\Texturing Effects\TestNormalMaps.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Tests\Texturing Effects\TestCubeMaps.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Tests\Model Loading\TestNanosuitModel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Tests\Texturing Effects\TestPBR.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Tests\Texturing Effects\TestCubeMaps.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

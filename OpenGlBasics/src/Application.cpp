@@ -1,13 +1,13 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "Window.h"
-
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <sstream>
 
+#include "Window.h"
+#include "Camera.h"
 #include "Renderer.h"
 
 #include "imgui/imgui.h"
@@ -113,8 +113,8 @@ int main(void)
 			ImGui_ImplGlfw_NewFrame();
 			ImGui::NewFrame();
 			if (currentTest) {
-				currentTest->ProcessInput(window, deltaTime);
-				currentTest->OnUpdate(0.0f);
+				Camera::GetInstance().Update(deltaTime);
+				currentTest->OnUpdate(deltaTime);
 				currentTest->OnRender();
 				ImGui::Begin("Test");
 				if (currentTest != testMenu && ImGui::Button("<-")) {

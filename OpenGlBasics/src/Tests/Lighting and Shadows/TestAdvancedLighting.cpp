@@ -120,7 +120,7 @@ namespace test {
 		m_Shader->SetUniform1i("u_Material.specular", 1);
 
 		//Set Camera
-		m_Camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 6.0f), glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		Camera::GetInstance().Reset(glm::vec3(0.0f, 0.0f, 6.0f), glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 
 	TestAdvancedLighting::~TestAdvancedLighting()
@@ -129,6 +129,7 @@ namespace test {
 
 	void TestAdvancedLighting::OnUpdate(float deltaTime)
 	{
+		Camera::GetInstance().UpdateSpeed(m_Speed);
 	}
 
 	void TestAdvancedLighting::OnRender()
@@ -153,7 +154,7 @@ namespace test {
 
 			m_Shader->SetUniform3f("u_ObjectColor", m_CubeColor.x, m_CubeColor.y, m_CubeColor.z);
 
-			m_Shader->SetUniform3f("u_ViewPos", m_Camera->CameraPosition().x, m_Camera->CameraPosition().y, m_Camera->CameraPosition().z);
+			m_Shader->SetUniform3f("u_ViewPos", Camera::GetInstance().CameraPosition().x, Camera::GetInstance().CameraPosition().y, Camera::GetInstance().CameraPosition().z);
 
 			m_Shader->SetUniform1i("u_NumPointLights", 1);
 
@@ -168,7 +169,7 @@ namespace test {
 			m_Shader->SetUniform1f("u_Material.shininess", m_SpecularPower);
 
 			//Move Camera
-			m_Camera->SetYawPitch(m_YawPitch.x - 90.0f, m_YawPitch.y);
+			Camera::GetInstance().SetYawPitch(m_YawPitch.x - 90.0f, m_YawPitch.y);
 			m_Proj = glm::perspective(glm::radians(m_FOV), 960.0f / 540.0f, 0.1f, 100.0f);
 
 			for (unsigned int i = 0; i < 10; i++)
@@ -179,7 +180,7 @@ namespace test {
 				model = glm::translate(model, m_CubePos + cubePositions[i]);
 				model = glm::rotate(model, (float)glfwGetTime() * glm::radians(20.0f + i * 5.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 
-				m_View = m_Camera->viewMatrix;
+				m_View = Camera::GetInstance().viewMatrix;
 
 				//construt model view projection
 				glm::mat4 mvp = m_Proj * m_View * model;
@@ -200,7 +201,7 @@ namespace test {
 			m_LampShader->Bind();
 
 			//Move Camera
-			m_Camera->SetYawPitch(m_YawPitch.x - 90.0f, m_YawPitch.y);
+			Camera::GetInstance().SetYawPitch(m_YawPitch.x - 90.0f, m_YawPitch.y);
 			m_Proj = glm::perspective(glm::radians(m_FOV), 960.0f / 540.0f, 0.1f, 100.0f);
 
 			//create model matrix
@@ -209,7 +210,7 @@ namespace test {
 			model = glm::translate(model, m_LampPos);
 			model = glm::scale(model, glm::vec3(0.2f));
 
-			m_View = m_Camera->viewMatrix;
+			m_View = Camera::GetInstance().viewMatrix;
 
 			//construt model view projection
 			glm::mat4 mvp = m_Proj * m_View * model;
@@ -242,7 +243,7 @@ namespace test {
 		xOffset *= sensitivity;
 		yOffset *= sensitivity;
 
-		m_Camera->UpdateYawPitch(xOffset, yOffset);
+		Camera::GetInstance().UpdateYawPitch(xOffset, yOffset);
 	}
 
 	void TestAdvancedLighting::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
@@ -255,23 +256,6 @@ namespace test {
 			m_FOV = 45.0f;
 
 		m_Proj = glm::perspective(glm::radians(m_FOV), 960.0f / 540.0f, 0.1f, 100.0f);
-	}
-
-	void TestAdvancedLighting::ProcessInput(GLFWwindow* window, float deltaTime)
-	{
-		float cameraSpeed = m_Speed * deltaTime; // adjust accordingly
-		if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-			m_Camera->Forward(cameraSpeed);
-		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-			m_Camera->BackWard(cameraSpeed);
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-			m_Camera->Up(cameraSpeed);
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-			m_Camera->Down(cameraSpeed);
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-			m_Camera->Left(cameraSpeed);
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-			m_Camera->Right(cameraSpeed);
 	}
 
 	void TestAdvancedLighting::OnImGuiRender()

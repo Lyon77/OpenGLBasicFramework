@@ -1,8 +1,43 @@
 #include "Camera.h"
 
-Camera::Camera(glm::vec3 pos, glm::vec3 front, glm::vec3 up)
-	: m_Pos(pos), m_Front(front), m_Up(up), viewMatrix(glm::lookAt(pos, pos + front, up))
+#include "Window.h"
+
+Camera& Camera::GetInstance()
 {
+	static Camera s_Camera(glm::vec3(0.0f, 0.0f, 6.0f), glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	return s_Camera;
+}
+
+Camera::Camera(glm::vec3 pos, glm::vec3 front, glm::vec3 up)
+	: m_Pos(pos), m_Front(front), m_Up(up), viewMatrix(glm::lookAt(pos, pos + front, up)), m_Speed(2.0)
+{
+}
+
+void Camera::Reset(glm::vec3 pos, glm::vec3 front, glm::vec3 up)
+{
+	m_Pos = pos;
+	m_Front = front;
+	m_Up = up;
+	viewMatrix = glm::lookAt(pos, pos + front, up);
+}
+
+void Camera::Update(float deltaTime)
+{
+	GLFWwindow *window = Window::GetInstance().GetWindow();
+
+	float cameraSpeed = m_Speed * deltaTime; 
+	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+		Forward(cameraSpeed);
+	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+		BackWard(cameraSpeed);
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		Up(cameraSpeed);
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		Down(cameraSpeed);
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		Left(cameraSpeed);
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		Right(cameraSpeed);
 }
 
 void Camera::Forward(float speed)
@@ -41,6 +76,11 @@ void Camera::Down(float speed)
 	glm::vec3 rightAxis = glm::normalize(glm::cross(m_Front, m_Up));
 	m_Pos -= glm::normalize(glm::cross(rightAxis, m_Front)) * speed;
 	UpdateViewMatrix();
+}
+
+void Camera::UpdateSpeed(float speed)
+{
+	m_Speed = speed;
 }
 
 void Camera::UpdateYawPitch(float xOffset, float yOffset)

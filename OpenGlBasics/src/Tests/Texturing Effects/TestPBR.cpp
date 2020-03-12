@@ -352,7 +352,7 @@ namespace test {
 
 
 		//Set Camera
-		m_Camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 20.0f), glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		Camera::GetInstance().Reset(glm::vec3(0.0f, 0.0f, 20.0f), glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 
 	TestPBR::~TestPBR()
@@ -361,6 +361,7 @@ namespace test {
 
 	void TestPBR::OnUpdate(float deltaTime)
 	{
+		Camera::GetInstance().UpdateSpeed(m_Speed);
 	}
 
 	void TestPBR::OnRender()
@@ -370,7 +371,7 @@ namespace test {
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 
 		//Move Camera
-		m_Camera->SetYawPitch(m_YawPitch.x - 90.0f, m_YawPitch.y);
+		Camera::GetInstance().SetYawPitch(m_YawPitch.x - 90.0f, m_YawPitch.y);
 		m_Proj = glm::perspective(glm::radians(m_FOV), 960.0f / 540.0f, 0.1f, 100.0f);
 
 		// ------Make this section global----------
@@ -396,7 +397,7 @@ namespace test {
 			m_Shader->Bind();
 
 			//Set Uniforms
-			m_Shader->SetUniform3f("u_CameraPos", m_Camera->CameraPosition().x, m_Camera->CameraPosition().y, m_Camera->CameraPosition().z);
+			m_Shader->SetUniform3f("u_CameraPos", Camera::GetInstance().CameraPosition().x, Camera::GetInstance().CameraPosition().y, Camera::GetInstance().CameraPosition().z);
 			m_Shader->SetUniform1f("u_AO", 1.0f);
 			m_Shader->SetUniform1i("u_Textured", m_TexturedSphere);
 
@@ -412,7 +413,7 @@ namespace test {
 			m_FBO->BindColorTexture(6, 0);
 
 			glm::mat4 model = glm::mat4(1.0f);
-			m_View = m_Camera->viewMatrix;
+			m_View = Camera::GetInstance().viewMatrix;
 
 			// Setup Lights
 			for (unsigned int i = 0; i < sizeof(lightPositions) / sizeof(lightPositions[0]); ++i)
@@ -470,7 +471,7 @@ namespace test {
 				model = glm::translate(model, lightPositions[i]);
 				model = glm::scale(model, glm::vec3(0.1f));
 
-				m_View = m_Camera->viewMatrix;
+				m_View = Camera::GetInstance().viewMatrix;
 
 				//construt model view projection
 				glm::mat4 mvp = m_Proj * m_View * model;
@@ -490,7 +491,7 @@ namespace test {
 
 			m_SkyboxShader->Bind();
 
-			m_View = glm::mat4(glm::mat3(m_Camera->viewMatrix));
+			m_View = glm::mat4(glm::mat3(Camera::GetInstance().viewMatrix));
 			glm::mat4 vp = m_Proj * m_View;
 			m_SkyboxShader->SetUniformMat4f("u_VP", vp);
 
@@ -522,7 +523,7 @@ namespace test {
 		float sensitivity = 0.05f;
 		xOffset *= sensitivity;
 		yOffset *= sensitivity;
-		m_Camera->UpdateYawPitch(xOffset, yOffset);
+		Camera::GetInstance().UpdateYawPitch(xOffset, yOffset);
 	}
 
 	void TestPBR::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
@@ -557,23 +558,6 @@ namespace test {
 			output = glm::vec3(0.95f, 0.93f, 0.88f);
 
 		return output;
-	}
-
-	void TestPBR::ProcessInput(GLFWwindow* window, float deltaTime)
-	{
-		float cameraSpeed = m_Speed * deltaTime; // adjust accordingly
-		if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-			m_Camera->Forward(cameraSpeed);
-		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-			m_Camera->BackWard(cameraSpeed);
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-			m_Camera->Up(cameraSpeed);
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-			m_Camera->Down(cameraSpeed);
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-			m_Camera->Left(cameraSpeed);
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-			m_Camera->Right(cameraSpeed);
 	}
 
 	void TestPBR::OnImGuiRender()

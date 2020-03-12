@@ -112,7 +112,7 @@ namespace test {
 
 
 		//Set Camera
-		m_Camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		Camera::GetInstance().Reset(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 
 	TestNormalMaps::~TestNormalMaps()
@@ -121,6 +121,7 @@ namespace test {
 
 	void TestNormalMaps::OnUpdate(float deltaTime)
 	{
+		Camera::GetInstance().UpdateSpeed(m_Speed);
 	}
 
 	void TestNormalMaps::OnRender()
@@ -130,7 +131,7 @@ namespace test {
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 
 		//Move Camera
-		m_Camera->SetYawPitch(m_YawPitch.x - 90.0f, m_YawPitch.y);
+		Camera::GetInstance().SetYawPitch(m_YawPitch.x - 90.0f, m_YawPitch.y);
 		m_Proj = glm::perspective(glm::radians(m_FOV), 960.0f / 540.0f, 0.1f, 100.0f);
 
 		{
@@ -139,7 +140,7 @@ namespace test {
 			m_NormalMap->Bind(1);
 
 			//Set Uniforms
-			m_Shader->SetUniform3f("u_ViewPos", m_Camera->CameraPosition().x, m_Camera->CameraPosition().y, m_Camera->CameraPosition().z);
+			m_Shader->SetUniform3f("u_ViewPos", Camera::GetInstance().CameraPosition().x, Camera::GetInstance().CameraPosition().y, Camera::GetInstance().CameraPosition().z);
 			m_Shader->SetUniform3f("u_PointLight.position", m_LampPos.x, m_LampPos.y, m_LampPos.z);
 			m_Shader->SetUniform3f("u_PointLight.ambient", m_LampAmbient.x, m_LampAmbient.y, m_LampAmbient.z);
 			m_Shader->SetUniform3f("u_PointLight.diffuse", m_LampDiffuse.x, m_LampDiffuse.y, m_LampDiffuse.z);
@@ -149,7 +150,7 @@ namespace test {
 			model = glm::rotate(model, glm::radians(m_CubeRotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
 			model = glm::rotate(model, glm::radians(m_CubeRotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
 			model = glm::rotate(model, glm::radians(m_CubeRotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
-			m_View = m_Camera->viewMatrix;
+			m_View = Camera::GetInstance().viewMatrix;
 
 			//construt model view projection
 			glm::mat4 mvp = m_Proj * m_View * model;
@@ -173,7 +174,7 @@ namespace test {
 			model = glm::translate(model, m_LampPos);
 			model = glm::scale(model, glm::vec3(0.1f));
 
-			m_View = m_Camera->viewMatrix;
+			m_View = Camera::GetInstance().viewMatrix;
 
 			//construt model view projection
 			glm::mat4 mvp = m_Proj * m_View * model;
@@ -204,7 +205,7 @@ namespace test {
 		float sensitivity = 0.05f;
 		xOffset *= sensitivity;
 		yOffset *= sensitivity;
-		m_Camera->UpdateYawPitch(xOffset, yOffset);
+		Camera::GetInstance().UpdateYawPitch(xOffset, yOffset);
 	}
 
 	void TestNormalMaps::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
@@ -217,23 +218,6 @@ namespace test {
 			m_FOV = 45.0f;
 
 		m_Proj = glm::perspective(glm::radians(m_FOV), 960.0f / 540.0f, 0.1f, 100.0f);
-	}
-
-	void TestNormalMaps::ProcessInput(GLFWwindow* window, float deltaTime)
-	{
-		float cameraSpeed = m_Speed * deltaTime; // adjust accordingly
-		if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-			m_Camera->Forward(cameraSpeed);
-		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-			m_Camera->BackWard(cameraSpeed);
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-			m_Camera->Up(cameraSpeed);
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-			m_Camera->Down(cameraSpeed);
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-			m_Camera->Left(cameraSpeed);
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-			m_Camera->Right(cameraSpeed);
 	}
 
 	void TestNormalMaps::OnImGuiRender()

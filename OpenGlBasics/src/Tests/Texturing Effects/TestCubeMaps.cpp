@@ -215,7 +215,7 @@ namespace test {
 		m_SkyBoxShader->UnBind();
 
 		//Set Camera
-		m_Camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		Camera::GetInstance().Reset(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 		//Load SkyBox
 		m_SkyBoxTexture = std::make_unique<CubeMap>(faces);
@@ -227,6 +227,7 @@ namespace test {
 
 	void TestCubeMaps::OnUpdate(float deltaTime)
 	{
+		Camera::GetInstance().UpdateSpeed(m_Speed);
 	}
 
 	void TestCubeMaps::OnRender()
@@ -239,7 +240,7 @@ namespace test {
 		//process user input
 
 		//Move Camera
-		m_Camera->SetYawPitch(m_YawPitch.x - 90.0f, m_YawPitch.y);
+		Camera::GetInstance().SetYawPitch(m_YawPitch.x - 90.0f, m_YawPitch.y);
 		m_Proj = glm::perspective(glm::radians(m_FOV), 960.0f / 540.0f, 0.1f, 100.0f);
 
 		// Load the box
@@ -252,7 +253,7 @@ namespace test {
 				m_SkyBoxTexture->Bind();
 
 				//m_Shader->SetUniform1f("u_Ratio", m_Ratio);
-				m_Shader->SetUniform3f("u_CameraPos", m_Camera->CameraPosition().x, m_Camera->CameraPosition().y, m_Camera->CameraPosition().z);
+				m_Shader->SetUniform3f("u_CameraPos", Camera::GetInstance().CameraPosition().x, Camera::GetInstance().CameraPosition().y, Camera::GetInstance().CameraPosition().z);
 
 
 				for (unsigned int i = 0; i < 10; i++)
@@ -263,7 +264,7 @@ namespace test {
 					model = glm::translate(model, m_CubePos + cubePositions[i]);
 					model = glm::rotate(model, (float)glfwGetTime() * glm::radians(20.0f + i * 5.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 
-					m_View = m_Camera->viewMatrix;
+					m_View = Camera::GetInstance().viewMatrix;
 
 					//construt model view projection
 					glm::mat4 mvp = m_Proj * m_View * model;
@@ -287,7 +288,7 @@ namespace test {
 				m_SkyBoxTexture->Bind();
 
 				m_RefractiveShader->SetUniform1f("u_Ratio", m_Ratio);
-				m_RefractiveShader->SetUniform3f("u_CameraPos", m_Camera->CameraPosition().x, m_Camera->CameraPosition().y, m_Camera->CameraPosition().z);
+				m_RefractiveShader->SetUniform3f("u_CameraPos", Camera::GetInstance().CameraPosition().x, Camera::GetInstance().CameraPosition().y, Camera::GetInstance().CameraPosition().z);
 
 
 				for (unsigned int i = 0; i < 10; i++)
@@ -298,7 +299,7 @@ namespace test {
 					model = glm::translate(model, m_CubePos + cubePositions[i]);
 					model = glm::rotate(model, (float)glfwGetTime() * glm::radians(20.0f + i * 5.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 
-					m_View = m_Camera->viewMatrix;
+					m_View = Camera::GetInstance().viewMatrix;
 
 					//construt model view projection
 					glm::mat4 mvp = m_Proj * m_View * model;
@@ -322,7 +323,7 @@ namespace test {
 			glDepthFunc(GL_LEQUAL);
 			m_SkyBoxShader->Bind();
 
-			m_View = glm::mat4(glm::mat3(m_Camera->viewMatrix));
+			m_View = glm::mat4(glm::mat3(Camera::GetInstance().viewMatrix));
 
 			glm::mat4 vp = m_Proj * m_View;
 			m_SkyBoxShader->SetUniformMat4f("u_VP", vp);
@@ -355,7 +356,7 @@ namespace test {
 		xOffset *= sensitivity;
 		yOffset *= sensitivity;
 
-		m_Camera->UpdateYawPitch((float)xOffset, (float)yOffset);
+		Camera::GetInstance().UpdateYawPitch((float)xOffset, (float)yOffset);
 	}
 
 	void TestCubeMaps::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
@@ -368,23 +369,6 @@ namespace test {
 			m_FOV = 45.0f;
 
 		m_Proj = glm::perspective(glm::radians(m_FOV), 960.0f / 540.0f, 0.1f, 100.0f);
-	}
-
-	void TestCubeMaps::ProcessInput(GLFWwindow* window, float deltaTime)
-	{
-		float cameraSpeed = m_Speed * deltaTime; // adjust accordingly
-		if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-			m_Camera->Forward(cameraSpeed);
-		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-			m_Camera->BackWard(cameraSpeed);
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-			m_Camera->Up(cameraSpeed);
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-			m_Camera->Down(cameraSpeed);
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-			m_Camera->Left(cameraSpeed);
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-			m_Camera->Right(cameraSpeed);
 	}
 
 	void TestCubeMaps::OnImGuiRender()

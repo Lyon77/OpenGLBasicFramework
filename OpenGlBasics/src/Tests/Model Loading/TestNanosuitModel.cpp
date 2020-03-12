@@ -27,13 +27,14 @@ namespace test {
 		m_Model = std::make_unique<Model>("res/models/nanosuit/nanosuit.obj");
 		
 		//Set Camera
-		m_Camera = std::make_unique<Camera>(glm::vec3(0.0f, 5.0f, 10.0f), glm::vec3(0.0f, 5.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		Camera::GetInstance().Reset(glm::vec3(0.0f, 5.0f, 10.0f), glm::vec3(0.0f, 5.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 	TestNanosuitModel::~TestNanosuitModel()
 	{
 	}
 	void TestNanosuitModel::OnUpdate(float deltaTime)
 	{
+		Camera::GetInstance().UpdateSpeed(m_Speed);
 	}
 	void TestNanosuitModel::OnRender()
 	{
@@ -44,7 +45,7 @@ namespace test {
 			m_Shader->Bind();
 
 			//Move Camera
-			m_Camera->SetYawPitch(m_YawPitch.x - 90.0f, m_YawPitch.y);
+			Camera::GetInstance().SetYawPitch(m_YawPitch.x - 90.0f, m_YawPitch.y);
 			m_Proj = glm::perspective(glm::radians(m_FOV), 960.0f / 540.0f, 0.1f, 100.0f);
 
 			for (unsigned int i = 0; i < 10; i++)
@@ -52,7 +53,7 @@ namespace test {
 				//create model matrix
 				glm::mat4 model = glm::mat4(1.0f);
 
-				m_View = m_Camera->viewMatrix;
+				m_View = Camera::GetInstance().viewMatrix;
 
 				//construt model view projection
 				glm::mat4 mvp = m_Proj * m_View * model;
@@ -85,7 +86,7 @@ namespace test {
 		xOffset *= sensitivity;
 		yOffset *= sensitivity;
 
-		m_Camera->UpdateYawPitch((float)xOffset, (float)yOffset);
+		Camera::GetInstance().UpdateYawPitch((float)xOffset, (float)yOffset);
 	}
 
 	void TestNanosuitModel::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
@@ -98,23 +99,6 @@ namespace test {
 			m_FOV = 45.0f;
 
 		m_Proj = glm::perspective(glm::radians(m_FOV), 960.0f / 540.0f, 0.1f, 100.0f);
-	}
-
-	void TestNanosuitModel::ProcessInput(GLFWwindow* window, float deltaTime)
-	{
-		float cameraSpeed = m_Speed * deltaTime; // adjust accordingly
-		if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-			m_Camera->Forward(cameraSpeed);
-		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-			m_Camera->BackWard(cameraSpeed);
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-			m_Camera->Up(cameraSpeed);
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-			m_Camera->Down(cameraSpeed);
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-			m_Camera->Left(cameraSpeed);
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-			m_Camera->Right(cameraSpeed);
 	}
 
 	void TestNanosuitModel::OnImGuiRender()

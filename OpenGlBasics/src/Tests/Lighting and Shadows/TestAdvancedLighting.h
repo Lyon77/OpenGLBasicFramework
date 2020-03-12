@@ -18,7 +18,6 @@ namespace test {
 		void OnUpdate(float deltaTime) override;
 		void OnRender() override;
 		void OnImGuiRender() override;
-		void ProcessInput(GLFWwindow* window, float deltaTime) override;
 		void MouseCallback(GLFWwindow* window, double xpos, double ypos) override;
 		void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) override;
 	private:
@@ -34,7 +33,6 @@ namespace test {
 		glm::mat4 m_Proj, m_View;
 
 		//Camera Information
-		std::unique_ptr <Camera> m_Camera;
 		float m_Speed;
 		float m_FOV;
 		glm::vec2 m_YawPitch;

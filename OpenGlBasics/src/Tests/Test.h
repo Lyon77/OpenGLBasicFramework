@@ -16,7 +16,6 @@ namespace test {
 		virtual void OnUpdate(float deltaTime) {}
 		virtual void OnRender() {}
 		virtual void OnImGuiRender() {}
-		virtual void ProcessInput(GLFWwindow *window, float deltaTime) {}
 		virtual void MouseCallback(GLFWwindow* window, double xpos, double ypos) {}
 		virtual void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) {}
 	};
