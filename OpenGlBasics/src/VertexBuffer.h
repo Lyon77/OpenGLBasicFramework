@@ -9,4 +9,6 @@ public:
 
 	void Bind() const;
 	void UnBind() const;
+
+	void UpdateSubData(const void* data, unsigned int size);
 };

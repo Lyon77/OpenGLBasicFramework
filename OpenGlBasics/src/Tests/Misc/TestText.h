@@ -10,6 +10,14 @@
 #include "Camera.h"
 
 #include <memory>
+#include <map>
+
+struct Character {
+	GLuint     TextureID;  // ID handle of the glyph texture
+	glm::ivec2 Size;       // Size of glyph
+	glm::ivec2 Bearing;    // Offset from baseline to left/top of glyph
+	GLuint     Advance;    // Offset to advance to next glyph
+};
 
 namespace test {
 
@@ -27,6 +35,11 @@ namespace test {
 		std::unique_ptr <IndexBuffer> m_IndexBuffer;
 		std::unique_ptr <Shader> m_Shader;
 
-		glm::mat4 m_Proj, m_View;
+		glm::mat4 m_Proj;
+
+		std::map<GLchar, Character> m_Characters;
+		glm::vec2 m_Pos;
+		float m_Scale;
+		float m_Color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	};
 }
