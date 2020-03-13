@@ -115,7 +115,7 @@ namespace test {
 		m_TextureDiffuse = std::make_unique<Texture>("res/textures/Box_diffuse.png");
 		m_TextureSpecular = std::make_unique<Texture>("res/textures/Box_specular.png");
 
-		m_Shader->SetUniform1i("u_Gamma", false);
+		m_Shader->SetUniform1i("u_Gamma", true);
 		m_Shader->SetUniform1i("u_Material.diffuse", 0);
 		m_Shader->SetUniform1i("u_Material.specular", 1);
 

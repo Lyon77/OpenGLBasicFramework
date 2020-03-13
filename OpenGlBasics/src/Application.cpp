@@ -32,7 +32,8 @@
 #include "Tests/Texturing Effects/TestNormalMaps.h"
 #include "Tests/Texturing Effects/TestPBR.h"
 
-#include "Tests/Model Loading/TestNanosuitModel.h"
+#include "Tests/Misc/TestNanosuitModel.h"
+#include "Tests/Misc/TestText.h"
 
 
 int main(void)
@@ -80,8 +81,9 @@ int main(void)
 		testMenu->RegisterTest<test::TestNormalMaps>("Normal Maps");
 		testMenu->RegisterTest<test::TestPBR>("PBR");
 
-		testMenu->MakeGroup("Model Loading", 14, 14);
-		testMenu->RegisterTest<test::TestNanosuitModel>("Nanosuit");
+		testMenu->MakeGroup("Misc.", 14, 15);
+		testMenu->RegisterTest<test::TestNanosuitModel>("Model Loading: Nanosuit");
+		testMenu->RegisterTest<test::TestText>("Text Rendering");
 
 		testMenu->MakeGroup("Example Enviroments", 15, 15);
 		
