@@ -158,6 +158,7 @@
     <ClCompile Include="src\Tests\Texturing Effects\TestNormalMaps.cpp" />
     <ClCompile Include="src\Tests\Lighting and Shadows\TestPointSpotShadows.cpp" />
     <ClCompile Include="src\Tests\Basic\TestTexture2D.cpp" />
+    <ClCompile Include="src\TextLibrary.cpp" />
     <ClCompile Include="src\Texture.cpp" />
     <ClCompile Include="src\vendor\glm\detail\glm.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui.cpp" />
@@ -358,6 +359,7 @@
     <ClInclude Include="src\Tests\Texturing Effects\TestNormalMaps.h" />
     <ClInclude Include="src\Tests\Lighting and Shadows\TestPointSpotShadows.h" />
     <ClInclude Include="src\Tests\Basic\TestTexture2D.h" />
+    <ClInclude Include="src\TextLibrary.h" />
     <ClInclude Include="src\Texture.h" />
     <ClInclude Include="src\vendor\glm\common.hpp" />
     <ClInclude Include="src\vendor\glm\detail\compute_common.hpp" />
