@@ -16,7 +16,7 @@ public:
 
 	void Add2DColorAttachment(unsigned int index = 0);
 
-	void AddColorAttachment(unsigned int index = 0);
+	void AddColorAttachment(unsigned int index = 0, GLenum internalFormat = GL_RGB, GLenum dataFormat = GL_RGB, GLenum type = GL_UNSIGNED_BYTE);
 	void AddColorFPAttachment(unsigned int index = 0);
 	void AddDepthAttachment();
 	void AddCubeMapAttachment(unsigned int cubeMap);

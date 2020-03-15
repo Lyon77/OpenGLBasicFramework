@@ -44,7 +44,7 @@ void FrameBuffer::Add2DColorAttachment(unsigned int index)
 	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
 
-void FrameBuffer::AddColorAttachment(unsigned int index)
+void FrameBuffer::AddColorAttachment(unsigned int index, GLenum internalFormat, GLenum dataFormat, GLenum type)
 {
 	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID));
 
@@ -52,7 +52,7 @@ void FrameBuffer::AddColorAttachment(unsigned int index)
 	GLCall(glGenTextures(1, &m_TextureColorBuffer[index]));
 	GLCall(glBindTexture(GL_TEXTURE_2D, m_TextureColorBuffer[index]));
 
-	GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 960, 540, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL));
+	GLCall(glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, 960, 540, 0, dataFormat, type, NULL));
 
 	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
 	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));

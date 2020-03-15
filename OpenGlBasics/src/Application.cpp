@@ -22,6 +22,7 @@
 #include "Tests/Lighting and Shadows/TestAdvancedLighting.h"
 #include "Tests/Lighting and Shadows/TestDirShadows.h"
 #include "Tests/Lighting and Shadows/TestPointSpotShadows.h"
+#include "Tests/Lighting and Shadows/TestDeferredShading.h"
 
 #include "Tests/Post-Processing/TestDepthStencilBlending.h"
 #include "Tests/Post-Processing/TestFrameBuffer.h"
@@ -64,24 +65,26 @@ int main(void)
 		testMenu->RegisterTest<test::TestTexture2D>("2D Texture");
 		testMenu->RegisterTest<test::TestAdvancedTextures>("Advanced Texture and Camera Control");
 
-		testMenu->MakeGroup("Lighting and Shadows", 3, 6);
+		testMenu->MakeGroup("Lighting and Shadows", 3, 8);
 		testMenu->RegisterTest<test::TestLighting>("Lighting");
 		testMenu->RegisterTest<test::TestAdvancedLighting>("Advanced Lighting");
 		testMenu->RegisterTest<test::TestDirShadows>("Directional Shadows");
 		testMenu->RegisterTest<test::TestPointSpotShadows>("Point/Spot Shadows");
+		testMenu->RegisterTest<test::TestDeferredShading>("Deferred Shading");
+		testMenu->RegisterTest<test::TestPointSpotShadows>("Ambient Occulsion (Work in Progress)");
 
-		testMenu->MakeGroup("Post-Processing", 7, 10);
+		testMenu->MakeGroup("Post-Processing", 9, 12);
 		testMenu->RegisterTest<test::TestDepthStencilBlending>("Depth Testing, Stencil Testing, and Blending");
 		testMenu->RegisterTest<test::TestFrameBuffer>("Post-Processing Effects");
 		testMenu->RegisterTest<test::TestHDR>("HDR");
 		testMenu->RegisterTest<test::TestBloom>("Bloom");
 		
-		testMenu->MakeGroup("Texturing Effects", 11, 13);
+		testMenu->MakeGroup("Texturing Effects", 13, 15);
 		testMenu->RegisterTest<test::TestCubeMaps>("Skybox and Reflective Materials");
 		testMenu->RegisterTest<test::TestNormalMaps>("Normal Maps");
 		testMenu->RegisterTest<test::TestPBR>("PBR");
 
-		testMenu->MakeGroup("Misc.", 14, 15);
+		testMenu->MakeGroup("Misc.", 16, 17);
 		testMenu->RegisterTest<test::TestNanosuitModel>("Model Loading: Nanosuit");
 		testMenu->RegisterTest<test::TestText>("Text Rendering");
 

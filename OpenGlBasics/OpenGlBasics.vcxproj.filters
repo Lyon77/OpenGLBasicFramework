@@ -132,6 +132,9 @@
     <ClCompile Include="src\TextLibrary.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Tests\Lighting and Shadows\TestDeferredShading.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\Basic.shader" />
@@ -561,6 +564,8 @@
     <None Include="res\shaders\Prefilter.shader" />
     <None Include="res\shaders\BRDF.shader" />
     <None Include="res\shaders\Text.shader" />
+    <None Include="res\shaders\GBuffer.shader" />
+    <None Include="res\shaders\DeferredLightingPass.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Renderer.h">
@@ -1410,6 +1415,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\TextLibrary.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Tests\Lighting and Shadows\TestDeferredShading.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

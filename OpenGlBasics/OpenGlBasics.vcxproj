@@ -142,6 +142,7 @@
     <ClCompile Include="src\Model.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\Shader.cpp" />
+    <ClCompile Include="src\Tests\Lighting and Shadows\TestDeferredShading.cpp" />
     <ClCompile Include="src\Tests\Misc\TestNanosuitModel.cpp" />
     <ClCompile Include="src\Tests\Misc\TestText.cpp" />
     <ClCompile Include="src\Tests\Texturing Effects\TestPBR.cpp" />
@@ -179,7 +180,9 @@
     <None Include="res\shaders\BlinnPhong.shader" />
     <None Include="res\shaders\BRDF.shader" />
     <None Include="res\shaders\BrightColor.shader" />
+    <None Include="res\shaders\DeferredLightingPass.shader" />
     <None Include="res\shaders\GaussianBlur.shader" />
+    <None Include="res\shaders\GBuffer.shader" />
     <None Include="res\shaders\HDR.shader" />
     <None Include="res\shaders\Irradiance.shader" />
     <None Include="res\shaders\Model.shader" />
@@ -343,6 +346,7 @@
     <ClInclude Include="src\Model.h" />
     <ClInclude Include="src\Renderer.h" />
     <ClInclude Include="src\Shader.h" />
+    <ClInclude Include="src\Tests\Lighting and Shadows\TestDeferredShading.h" />
     <ClInclude Include="src\Tests\Misc\TestNanosuitModel.h" />
     <ClInclude Include="src\Tests\Misc\TestText.h" />
     <ClInclude Include="src\Tests\Texturing Effects\TestPBR.h" />

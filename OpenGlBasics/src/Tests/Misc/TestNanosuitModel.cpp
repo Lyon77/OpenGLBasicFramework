@@ -48,21 +48,18 @@ namespace test {
 			Camera::GetInstance().SetYawPitch(m_YawPitch.x - 90.0f, m_YawPitch.y);
 			m_Proj = glm::perspective(glm::radians(m_FOV), 960.0f / 540.0f, 0.1f, 100.0f);
 
-			for (unsigned int i = 0; i < 10; i++)
-			{
-				//create model matrix
-				glm::mat4 model = glm::mat4(1.0f);
+			//create model matrix
+			glm::mat4 model = glm::mat4(1.0f);
 
-				m_View = Camera::GetInstance().viewMatrix;
+			m_View = Camera::GetInstance().viewMatrix;
 
-				//construt model view projection
-				glm::mat4 mvp = m_Proj * m_View * model;
+			//construt model view projection
+			glm::mat4 mvp = m_Proj * m_View * model;
 
-				m_Shader->SetUniformMat4f("u_MVP", mvp);
+			m_Shader->SetUniformMat4f("u_MVP", mvp);
 
-				//draw texture
-				m_Model->Draw(m_Shader.get());
-			}
+			//draw texture
+			m_Model->Draw(m_Shader.get());
 
 			m_Shader->UnBind();
 		}

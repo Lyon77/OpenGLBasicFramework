@@ -10,6 +10,7 @@
 #include "glm/gtc/type_ptr.hpp"
 
 #include <map>
+#include <string>
 
 #include "Shader.h"
 #include "VertexArray.h"
@@ -27,7 +28,7 @@ struct Character {
 class TextLibrary
 {
 public:
-	TextLibrary();
+	TextLibrary(std::string path);
 	~TextLibrary();
 
 	void RenderText(Shader &shader, VertexArray &vao, VertexBuffer& vb, IndexBuffer &ib, std::string text, float x, float y, float scale, glm::vec3 color);

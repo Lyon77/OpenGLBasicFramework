@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-TextLibrary::TextLibrary()
+TextLibrary::TextLibrary(std::string path)
 {
 	// Load Library and Faces. The functions will return non zero if failed
 	FT_Library ft;
@@ -10,9 +10,11 @@ TextLibrary::TextLibrary()
 		std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
 
 	FT_Face face;
-	if (FT_New_Face(ft, "../../../Windows/Fonts/arial.ttf", 0, &face))
+	if (FT_New_Face(ft, path.c_str(), 0, &face))
+	{
 		std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
-	std::cout << "May Have to Change Font File Location" << std::endl;
+		std::cout << "May Have to Change Font File Location" << std::endl;
+	}
 
 	FT_Set_Pixel_Sizes(face, 0, 48); // Dynamically set width based on height
 

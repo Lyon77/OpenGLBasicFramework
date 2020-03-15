@@ -51,7 +51,7 @@ namespace test {
 		m_Shader->SetUniformMat4f("u_Projection", m_Proj);
 		m_Shader->UnBind();
 
-		m_TextLibrary = std::make_unique<TextLibrary>();
+		m_TextLibrary = std::make_unique<TextLibrary>("../../../Windows/Fonts/arial.ttf");
 	}
 
 	TestText::~TestText()
