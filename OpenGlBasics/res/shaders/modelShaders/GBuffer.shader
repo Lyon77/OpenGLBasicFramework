@@ -15,7 +15,7 @@ uniform mat4 u_Model;
 void main()
 {
 	vec4 worldPos = u_Model * vec4(position, 1.0);
-	v_FragPos = worldPos.xyz;
+	v_FragPos = vec3(worldPos);
 	v_TexCoords = texCoords;
 
 	mat3 normalMatrix = transpose(inverse(mat3(u_Model)));

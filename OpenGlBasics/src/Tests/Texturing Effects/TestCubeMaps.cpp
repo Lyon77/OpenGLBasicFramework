@@ -168,7 +168,7 @@ namespace test {
 		m_VAO = std::make_unique<VertexArray>();
 
 		//create vertex buffer
-		m_VertexBuffer = std::make_unique<VertexBuffer>(positions, 3 * 4 * 6 * sizeof(float)); //8 values, 4, points, 6 faces
+		m_VertexBuffer = std::make_unique<VertexBuffer>(positions, 6 * 4 * 6 * sizeof(float)); //8 values, 4, points, 6 faces
 
 		//set vertex buffer to array
 		VertexBufferLayout layout;

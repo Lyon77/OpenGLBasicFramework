@@ -61,9 +61,9 @@ void main()
 			float spec = pow(max(dot(Normal, halfwayDir), 0.0), 32.0);
 			vec3 specular = u_Lights[i].Color * spec * Specular;
 			// attenuation
-			float attenuation = 1.0 / (1.0 + u_Lights[i].Linear * distance + u_Lights[i].Quadratic * distance * distance);
-			diffuse *= attenuation;
-			specular *= attenuation;
+			//float attenuation = 1.0 / (1.0 + u_Lights[i].Linear * distance + u_Lights[i].Quadratic * distance * distance);
+			//diffuse *= attenuation;
+			//specular *= attenuation;
 			lighting += diffuse + specular;
 		}
 	}

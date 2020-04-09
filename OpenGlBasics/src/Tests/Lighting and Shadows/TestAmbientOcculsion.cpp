@@ -1,4 +1,4 @@
-#include "TestDeferredShading.h"
+#include "TestAmbientOcculsion.h"
 
 #include <iostream>
 
@@ -12,9 +12,12 @@
 
 namespace test {
 
-	TestDeferredShading::TestDeferredShading()
+	TestAmbientOcculsion::TestAmbientOcculsion()
 		: m_Proj(glm::perspective(glm::radians(45.0f), 960.0f / 540.0f, 0.1f, 100.0f)), m_View(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -3.0))), //glm::perspective(glm::radians(45.0f), 960.0f / 540.0f, 0.1f, 500.0f)
-		m_FOV(45.0f), m_YawPitch(glm::vec2(0.0f, 0.0f)), m_Speed(2.5f)
+		m_FOV(45.0f), m_YawPitch(glm::vec2(0.0f, 0.0f)), m_Speed(2.5f),
+		m_LampAmbient(glm::vec3(0.2f, 0.2f, 0.2f)), m_LampDiffuse(glm::vec3(0.5f, 0.5f, 0.5f)), m_LampSpecular(glm::vec3(1.0f, 1.0f, 1.0f)),
+		m_SpecularPower(5.0f),
+		m_AttenuationCheckbox(true)
 	{
 		//Depth Testing
 		GLCall(glEnable(GL_DEPTH_TEST));
@@ -22,17 +25,17 @@ namespace test {
 		//Blending for transparent bits in the texture
 		GLCall(glDisable(GL_BLEND));
 
-		m_ObjectPositions.push_back(glm::vec3(-3.0f, -1.5f, -3.0f));
-		m_ObjectPositions.push_back(glm::vec3( 0.0f, -1.5f, -3.0f));
-		m_ObjectPositions.push_back(glm::vec3( 3.0f, -1.5f, -3.0f));
-		m_ObjectPositions.push_back(glm::vec3(-3.0f, -1.5f,  0.0f));
-		m_ObjectPositions.push_back(glm::vec3( 0.0f, -1.5f,  0.0f));
-		m_ObjectPositions.push_back(glm::vec3( 3.0f, -1.5f,  0.0f));
-		m_ObjectPositions.push_back(glm::vec3(-3.0f, -1.5f,  3.0f));
-		m_ObjectPositions.push_back(glm::vec3( 0.0f, -1.5f,  3.0f));
-		m_ObjectPositions.push_back(glm::vec3( 3.0f, -1.5f,  3.0f));
+		m_ObjectPositions.push_back(glm::vec3(-2.0f, -0.0f, -2.0f));
+		m_ObjectPositions.push_back(glm::vec3(0.0f, -0.0f, -2.0f));
+		m_ObjectPositions.push_back(glm::vec3(2.0f, -0.0f, -2.0f));
+		m_ObjectPositions.push_back(glm::vec3(-2.0f, -0.0f, 0.0f));
+		m_ObjectPositions.push_back(glm::vec3(0.0f, -0.0f, 0.0f));
+		m_ObjectPositions.push_back(glm::vec3(2.0f, -0.0f, 0.0f));
+		m_ObjectPositions.push_back(glm::vec3(-2.0f, -0.0f, 2.0f));
+		m_ObjectPositions.push_back(glm::vec3(0.0f, -0.0f, 2.0f));
+		m_ObjectPositions.push_back(glm::vec3(2.0f, -0.0f, 2.0f));
 
-		const unsigned int NR_LIGHTS = 32;
+		const unsigned int NR_LIGHTS = 1;
 		srand(13);
 		for (unsigned int i = 0; i < NR_LIGHTS; i++)
 		{
@@ -172,28 +175,29 @@ namespace test {
 
 		// Set FrameBuffer
 		m_FBO = std::make_unique<FrameBuffer>();
-		m_FBO->AddColorAttachment(0, GL_RGB16F, GL_RGB, GL_FLOAT); // Position
-		m_FBO->AddColorAttachment(1, GL_RGB16F, GL_RGB, GL_FLOAT); // Normal
+		m_FBO->AddColorAttachment(0, GL_RGB32F, GL_RGB, GL_FLOAT); // Position
+		m_FBO->AddColorAttachment(1, GL_RGB32F, GL_RGB, GL_FLOAT); // Normal
 		m_FBO->AddColorAttachment(2, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE); // Color + specular color
 		m_FBO->AddDepthAttachment();
 		m_FBO->AddRenderBufferAttachment(3);
 
-		m_Model = std::make_unique<Model>("res/models/nanosuit/nanosuit.obj");
+		m_TextureDiffuse = std::make_unique<Texture>("res/textures/Box_diffuse.png");
+		m_TextureSpecular = std::make_unique<Texture>("res/textures/Box_specular.png");
 
 		//Set Camera
-		Camera::GetInstance().Reset(glm::vec3(0.0f, 0.0f, 15.0f), glm::vec3(0.0f, 5.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		Camera::GetInstance().Reset(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 
-	TestDeferredShading::~TestDeferredShading()
+	TestAmbientOcculsion::~TestAmbientOcculsion()
 	{
 	}
 
-	void TestDeferredShading::OnUpdate(float deltaTime)
+	void TestAmbientOcculsion::OnUpdate(float deltaTime)
 	{
 		Camera::GetInstance().UpdateSpeed(m_Speed);
 	}
 
-	void TestDeferredShading::OnRender()
+	void TestAmbientOcculsion::OnRender()
 	{
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -212,14 +216,15 @@ namespace test {
 
 		{
 			m_GBufferShader->Bind();
+			m_TextureDiffuse->Bind(0);
+			m_TextureSpecular->Bind(1);
 
 			for (unsigned int i = 0; i < m_ObjectPositions.size(); i++)
 			{
 				//create model matrix
 				glm::mat4 model = glm::mat4(1.0f);
 				model = glm::translate(model, m_ObjectPositions[i]);
-				model = glm::scale(model, glm::vec3(0.5f));
-				
+
 				m_View = Camera::GetInstance().viewMatrix;
 				glm::mat4 mvp = m_Proj * m_View * model;
 
@@ -227,7 +232,7 @@ namespace test {
 				m_GBufferShader->SetUniformMat4f("u_Model", model);
 
 				//draw texture
-				m_Model->Draw(m_GBufferShader.get());
+				renderer.Draw(*m_CubeVAO, *m_CubeIndexBuffer, *m_GBufferShader);
 			}
 
 			m_GBufferShader->UnBind();
@@ -237,7 +242,7 @@ namespace test {
 		// Light Pass --------------------------------------------------------------
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
+
 		{
 			m_LightingShader->Bind();
 			m_FBO->BindColorTexture(0, 0);
@@ -249,7 +254,7 @@ namespace test {
 
 			for (unsigned int i = 0; i < m_LightPositions.size(); i++)
 			{
-				m_LightingShader->SetUniform3f("u_Lights[" + std::to_string(i) + "].Position", (m_LightPositions[i].x + m_LampPos.x), (m_LightPositions[i].y + m_LampPos.y), (m_LightPositions[i].z + m_LampPos.z));
+				m_LightingShader->SetUniform3f("u_Lights[" + std::to_string(i) + "].Position", m_LampPos.x, m_LampPos.y, m_LampPos.z);
 				m_LightingShader->SetUniform3f("u_Lights[" + std::to_string(i) + "].Color", m_LightColors[i].r, m_LightColors[i].g, m_LightColors[i].b);
 
 				// update attenuation parameters and calculate radius
@@ -268,7 +273,7 @@ namespace test {
 
 			m_LightingShader->UnBind();
 		}
-		
+
 
 		// copy content of geometry's depth buffer to default framebuffer's depth buffer -------------------
 		m_FBO->Bind();
@@ -284,8 +289,8 @@ namespace test {
 			{
 				//create model matrix
 				glm::mat4 model = glm::mat4(1.0f);
-				model = glm::translate(model, (m_LampPos + m_LightPositions[i]));
-				model = glm::scale(model, glm::vec3(0.25f));
+				model = glm::translate(model, m_LampPos);
+				model = glm::scale(model, glm::vec3(0.125f));
 				m_View = Camera::GetInstance().viewMatrix;
 				glm::mat4 mvp = m_Proj * m_View * model;
 
@@ -300,7 +305,7 @@ namespace test {
 		}
 	}
 
-	void TestDeferredShading::MouseCallback(GLFWwindow* window, double xpos, double ypos)
+	void TestAmbientOcculsion::MouseCallback(GLFWwindow* window, double xpos, double ypos)
 	{
 		if (firstMouse) // this bool variable is initially set to true
 		{
@@ -321,7 +326,7 @@ namespace test {
 		Camera::GetInstance().UpdateYawPitch(xOffset, yOffset);
 	}
 
-	void TestDeferredShading::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+	void TestAmbientOcculsion::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 	{
 		if (m_FOV >= 1.0f && m_FOV <= 45.0f)
 			m_FOV -= yoffset;
@@ -333,12 +338,16 @@ namespace test {
 		m_Proj = glm::perspective(glm::radians(m_FOV), 960.0f / 540.0f, 0.1f, 100.0f);
 	}
 
-	void TestDeferredShading::OnImGuiRender()
+	void TestAmbientOcculsion::OnImGuiRender()
 	{
 		ImGui::TextWrapped("Welcome to the Deferred Lighting Test Enviroment. This uses Blinn-Phong lighting. Use WASD to move around and QE to zoom in and out. There are more setting options below.");
 
 		if (ImGui::CollapsingHeader("Lamp Options")) {
-			ImGui::SliderFloat3("Translate Lamp", &m_LampPos.x, -5.0f, 20.0f);
+			ImGui::SliderFloat3("Translate Lamp", &m_LampPos.x, -5.0f, 5.0f);
+			ImGui::ColorEdit3("Light Ambient", &m_LampAmbient.x);
+			ImGui::ColorEdit3("Light Diffuse", &m_LampDiffuse.x);
+			ImGui::ColorEdit3("Light Specular", &m_LampSpecular.x);
+			ImGui::Checkbox("Attenuation", &m_AttenuationCheckbox);
 		}
 
 		if (ImGui::CollapsingHeader("Camera Options")) {

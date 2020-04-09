@@ -56,6 +56,8 @@ void Mesh::setupMesh()
 	layout.Push<float>(3);
 	layout.Push<float>(3);
 	layout.Push<float>(2);
+	layout.Push<float>(3);
+	layout.Push<float>(3);
 	m_VAO->AddBuffer(*m_VertexBuffer, layout);
 
 	m_VAO->UnBind();

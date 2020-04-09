@@ -135,6 +135,9 @@
     <ClCompile Include="src\Tests\Lighting and Shadows\TestDeferredShading.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Tests\Lighting and Shadows\TestAmbientOcculsion.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\Basic.shader" />
@@ -557,15 +560,16 @@
     <None Include="res\shaders\HDR.shader" />
     <None Include="res\shaders\BrightColor.shader" />
     <None Include="res\shaders\GaussianBlur.shader" />
-    <None Include="res\shaders\Model.shader" />
     <None Include="res\shaders\PBR.shader" />
     <None Include="res\shaders\UnitCube.shader" />
     <None Include="res\shaders\Irradiance.shader" />
     <None Include="res\shaders\Prefilter.shader" />
     <None Include="res\shaders\BRDF.shader" />
     <None Include="res\shaders\Text.shader" />
-    <None Include="res\shaders\GBuffer.shader" />
+    <None Include="res\shaders\modelShaders\Model.shader" />
     <None Include="res\shaders\DeferredLightingPass.shader" />
+    <None Include="res\shaders\modelShaders\GBuffer.shader" />
+    <None Include="res\shaders\modelShaders\Model_BlingPhong.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Renderer.h">
@@ -1418,6 +1422,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Tests\Lighting and Shadows\TestDeferredShading.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Tests\Lighting and Shadows\TestAmbientOcculsion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

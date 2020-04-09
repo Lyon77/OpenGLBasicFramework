@@ -23,6 +23,7 @@
 #include "Tests/Lighting and Shadows/TestDirShadows.h"
 #include "Tests/Lighting and Shadows/TestPointSpotShadows.h"
 #include "Tests/Lighting and Shadows/TestDeferredShading.h"
+#include "Tests/Lighting and Shadows/TestAmbientOcculsion.h"
 
 #include "Tests/Post-Processing/TestDepthStencilBlending.h"
 #include "Tests/Post-Processing/TestFrameBuffer.h"
@@ -35,7 +36,6 @@
 
 #include "Tests/Misc/TestNanosuitModel.h"
 #include "Tests/Misc/TestText.h"
-
 
 int main(void)
 {
@@ -70,8 +70,8 @@ int main(void)
 		testMenu->RegisterTest<test::TestAdvancedLighting>("Advanced Lighting");
 		testMenu->RegisterTest<test::TestDirShadows>("Directional Shadows");
 		testMenu->RegisterTest<test::TestPointSpotShadows>("Point/Spot Shadows");
-		testMenu->RegisterTest<test::TestDeferredShading>("Deferred Shading");
-		testMenu->RegisterTest<test::TestPointSpotShadows>("Ambient Occulsion (Work in Progress)");
+		testMenu->RegisterTest<test::TestDeferredShading>("Deferred Shading (Work in Progress)");
+		testMenu->RegisterTest<test::TestAmbientOcculsion>("Ambient Occulsion (Work in Progress)");
 
 		testMenu->MakeGroup("Post-Processing", 9, 12);
 		testMenu->RegisterTest<test::TestDepthStencilBlending>("Depth Testing, Stencil Testing, and Blending");
@@ -88,7 +88,7 @@ int main(void)
 		testMenu->RegisterTest<test::TestNanosuitModel>("Model Loading: Nanosuit");
 		testMenu->RegisterTest<test::TestText>("Text Rendering");
 
-		testMenu->MakeGroup("Example Enviroments", 15, 15);
+		testMenu->MakeGroup("Example Enviroments", 18, 18);
 		
 		//keep track of time
 		float deltaTime = 0.0f;

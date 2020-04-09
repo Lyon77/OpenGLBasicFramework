@@ -22,7 +22,7 @@ namespace test {
 		GLCall(glDisable(GL_BLEND));
 
 		//create Vertex and Fragment source
-		m_Shader = std::make_unique<Shader>("res/shaders/Model.shader");
+		m_Shader = std::make_unique<Shader>("res/shaders/modelShaders/Model.shader");
 
 		m_Model = std::make_unique<Model>("res/models/nanosuit/nanosuit.obj");
 		

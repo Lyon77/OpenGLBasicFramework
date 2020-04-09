@@ -12,10 +12,10 @@
 
 namespace test {
 
-	class TestDeferredShading : public Test {
+	class TestAmbientOcculsion : public Test {
 	public:
-		TestDeferredShading();
-		~TestDeferredShading();
+		TestAmbientOcculsion();
+		~TestAmbientOcculsion();
 
 		void OnUpdate(float deltaTime) override;
 		void OnRender() override;
@@ -37,7 +37,8 @@ namespace test {
 
 		std::unique_ptr <FrameBuffer> m_FBO;
 
-		std::unique_ptr <Model> m_Model;
+		std::unique_ptr <Texture> m_TextureDiffuse;
+		std::unique_ptr <Texture> m_TextureSpecular;
 
 		glm::mat4 m_Proj, m_View;
 
@@ -54,6 +55,14 @@ namespace test {
 		float lastX = 960.0f / 2.0f, lastY = 540.0f / 2.0f;
 		bool firstMouse = true;
 
-		glm::vec3 m_LampPos = glm::vec3(0.0f, 0.0f, 0.0f);
+		glm::vec3 m_LampPos = glm::vec3(1.0f, 0.0f, 1.0f);
+
+		glm::vec3 m_LampAmbient;
+		glm::vec3 m_LampDiffuse;
+		glm::vec3 m_LampSpecular;
+
+		float m_SpecularPower;
+
+		bool m_AttenuationCheckbox;
 	};
 }
