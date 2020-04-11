@@ -37,11 +37,16 @@
 #include "Tests/Misc/TestNanosuitModel.h"
 #include "Tests/Misc/TestText.h"
 
+#include <irrKlang.h>
+
 int main(void)
 {
 	GLFWwindow* window = Window::GetInstance(960, 540).GetWindow();
 
 	std::cout << glGetString(GL_VERSION) << std::endl;
+	
+	//irrklang::ISoundEngine* SoundEngine = irrklang::createIrrKlangDevice();
+	//SoundEngine->play2D("res/sounds/breakout.mp3", true);
 
 	{
 
